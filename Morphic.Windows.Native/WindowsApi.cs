@@ -423,7 +423,7 @@ namespace Morphic.Windows.Native
         //
         // https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getprivateprofilestringw
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        internal static extern UInt32 GetPrivateProfileString(String lpAppName, String lpKeyName, String lpDefault, out String lpReturnedString, UInt32 size, String lpFileName);
+        internal static extern UInt32 GetPrivateProfileString(String lpAppName, String lpKeyName, String lpDefault, IntPtr lpReturnedString, UInt32 size, String lpFileName);
         //
         // https://docs.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getsysteminfo
         [DllImport("kernel32.dll")]

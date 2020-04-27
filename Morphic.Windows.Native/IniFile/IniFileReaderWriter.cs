@@ -24,10 +24,9 @@
 using System;
 using System.Runtime.InteropServices;
 
-// TODO: This code is a draft, pending QA
-
 namespace Morphic.Windows.Native
 {
+    // TODO: the following code has been tested on x86 and amd64 architectures; once Microsoft ships a .NET Core SDK on ARM64, test it on ARM64 also.
     public class IniFileReaderWriter
     {
         private String _path;
@@ -39,21 +38,37 @@ namespace Morphic.Windows.Native
 
         public String ReadValue(String key, String section)
         {
-            // NOTE: we are using a maximum value length of 255 characters + null; this is somewhat arbitrary, so enlarge maxValueLength if necessary
-            var maxValueLength = 256;
-            var value = new String(' ', maxValueLength);
+            // NOTE: we are using a maximum length of 255 characters + null terminator; this is somewhat arbitrary, so enlarge maxValueLengthInChars if necessary
+            var maxValueLengthInChars = 256;
+            var maxValueLengthInBytes = maxValueLengthInChars * 2; // UTF-16 characters are 2 bytes in length
 
-            var actualLength = WindowsApi.GetPrivateProfileString(section, key, "", out value, (UInt32)maxValueLength, _path);
-
-            var lastWin32Error = Marshal.GetLastWin32Error();
-            if (lastWin32Error == 0x2) /* file not found*/
+            var pointerToReturnedString = Marshal.AllocHGlobal(maxValueLengthInBytes);
+            String returnedString;
+            try
             {
-                var hresult = Marshal.GetHRForLastWin32Error();
-                throw Marshal.GetExceptionForHR(hresult);
+                var actualLengthAsUInt32 = WindowsApi.GetPrivateProfileString(section, key, "", pointerToReturnedString, (UInt32)maxValueLengthInChars, _path);
+                if (actualLengthAsUInt32 > maxValueLengthInChars)
+                {
+                    // sanity check; this code should be unreachable
+                    throw new AccessViolationException();
+                }
+                var actualLength = (Int32)actualLengthAsUInt32;
+
+                var lastWin32Error = Marshal.GetLastWin32Error();
+                if (lastWin32Error == 0x2) /* file not found*/
+                {
+                    var hresult = Marshal.GetHRForLastWin32Error();
+                    throw Marshal.GetExceptionForHR(hresult);
+                }
+
+                returnedString = Marshal.PtrToStringUni(pointerToReturnedString, actualLength);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(pointerToReturnedString);
             }
 
-            var result = value.Substring(0, (Int32)actualLength);
-            return result;
+            return returnedString;
         }
 
         public void WriteValue(String value, String key, String section)
