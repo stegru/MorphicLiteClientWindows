@@ -21,6 +21,7 @@
 // * Adobe Foundation
 // * Consumer Electronics Association Foundation
 
+using Microsoft.Win32;
 using System;
 
 namespace Morphic.ThirdPartyApps
@@ -30,7 +31,7 @@ namespace Morphic.ThirdPartyApps
     internal class RegistryHelpers
     {
         // throws RegistryKeyNotFoundException if the path does not exist
-        public static T? GetRegistryEntry_NullDefault<T>(Microsoft.Win32.RegistryKey baseKey, String path, String name) where T : struct
+        public static T? GetRegistryEntry_NullDefault<T>(RegistryKey baseKey, String path, String name) where T : struct
         {
             try
             {
@@ -44,7 +45,7 @@ namespace Morphic.ThirdPartyApps
 
         // TODO: verify that struct will accept primary types like Boolean, UInt32, etc.
         // throws RegistryKeyNotFoundException if the path does not exist
-        public static T? GetRegistryValueData<T>(Microsoft.Win32.RegistryKey baseKey, String path, String name) where T: struct
+        public static T? GetRegistryValueData<T>(RegistryKey baseKey, String path, String name) where T: struct
         {
             var registryKey = baseKey.OpenSubKey(path);
             if (registryKey == null)
@@ -63,7 +64,7 @@ namespace Morphic.ThirdPartyApps
             return (T)valueAsObject;
         }
 
-        public static void SetRegistryValueData<T>(Microsoft.Win32.RegistryKey baseKey, String path, String name, T value)
+        public static void SetRegistryValueData<T>(RegistryKey baseKey, String path, String name, T value)
         {
             var registryKey = baseKey.OpenSubKey(path, true);
             if (registryKey == null)
