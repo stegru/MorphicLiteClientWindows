@@ -60,16 +60,18 @@ namespace Morphic.ThirdPartyApps.Microsoft
             public const String ReadHints = "ReadHints";
             public const String SpeechSpeed = "SpeechSpeed";
             public const String SpeechPitch = "SpeechPitch";
-            //public const String SpeechVolume = "SpeechVolume";
-            //public const String SpeechVoice = "SpeechVoice";
-            //public const String ShowKeyboardIntroduction = "ShowKeyboardIntroduction";
-            //public const String ShowBrowserSelection = "ShowBrowserSelection";
-            //public const String ContextVerbosityLevel = "ContextVerbosityLevel";
-            //public const String RenderContextBeforeElement = "RenderContextBeforeElement";
-            //public const String DuckAudio = "DuckAudio";
-            //public const String WinEnterLaunchEnabled = "WinEnterLaunchEnabled";
-            //public const String VerbosityLevel = "VerbosityLevel";
-            //public const String DetailedFeedback = "DetailedFeedback";
+            // TODO: the following settings are marked as "no roam"; treat them as special cases if necessary
+            public const String SpeechVolume = "SpeechVolume";
+            public const String SpeechVoice = "SpeechVoice";
+            public const String ShowKeyboardIntroduction = "ShowKeyboardIntroduction";
+            public const String ShowBrowserSelection = "ShowBrowserSelection";
+            public const String ContextVerbosityLevel = "ContextVerbosityLevel";
+            public const String RenderContextBeforeElement = "RenderContextBeforeElement";
+            public const String DuckAudio = "DuckAudio";
+            public const String WinEnterLaunchEnabled = "WinEnterLaunchEnabled";
+            public const String VerbosityLevel = "VerbosityLevel";
+            public const String DetailedFeedback = "DetailedFeedback";
+            // TODO: the following settings are marked as "system settings"; treat them as special cases if necessary
             public const String IsAutoStartEnabled = "IsAutoStartEnabled";
             public const String IsAutoStartOnLogonDesktopEnabled = "IsAutoStartOnLogonDesktopEnabled";
         }
@@ -184,28 +186,76 @@ namespace Morphic.ThirdPartyApps.Microsoft
                         this.SetSpeechPitch(value);
                     }
                     break;
-                //case SettingsKey.SpeechVolume:
-                //case SettingsKey.SpeechVoice:
-                //case SettingsKey.ShowKeyboardIntroduction:
-                //case SettingsKey.ShowBrowserSelection:
-                //case SettingsKey.ContextVerbosityLevel:
-                //case SettingsKey.RenderContextBeforeElement:
-                //case SettingsKey.DuckAudio:
-                //case SettingsKey.WinEnterLaunchEnabled:
-                //case SettingsKey.VerbosityLevel:
-                //case SettingsKey.DetailedFeedback:
-
-
+                case SettingsKey.SpeechVolume:
+                    {
+                        var value = CastingUtils.CastLosslesslyOrThrowException<UInt32>(setting.value);
+                        this.SetSpeechVolume(value);
+                    }
+                    break;
+                case SettingsKey.SpeechVoice:
+                    {
+                        var value = CastingUtils.CastLosslesslyOrThrowException<String>(setting.value);
+                        this.SetSpeechVoice(value);
+                    }
+                    break;
+                case SettingsKey.ShowKeyboardIntroduction:
+                    {
+                        var value = CastingUtils.CastLosslesslyOrThrowException<Boolean>(setting.value);
+                        this.SetShowKeyboardIntroduction(value);
+                    }
+                    break;
+                case SettingsKey.ShowBrowserSelection:
+                    {
+                        var value = CastingUtils.CastLosslesslyOrThrowException<Boolean>(setting.value);
+                        this.SetShowBrowserSelection(value);
+                    }
+                    break;
+                case SettingsKey.ContextVerbosityLevel:
+                    {
+                        var value = CastingUtils.CastLosslesslyOrThrowException<UInt32>(setting.value);
+                        this.SetContextVerbosityLevel((ContextVerbosityLevelOption)value);
+                    }
+                    break;
+                case SettingsKey.RenderContextBeforeElement:
+                    {
+                        var value = CastingUtils.CastLosslesslyOrThrowException<UInt32>(setting.value);
+                        this.SetRenderContextBeforeElement((RenderContextBeforeElementOption)value);
+                    }
+                    break;
+                case SettingsKey.DuckAudio:
+                    {
+                        var value = CastingUtils.CastLosslesslyOrThrowException<Boolean>(setting.value);
+                        this.SetDuckAudio(value);
+                    }
+                    break;
+                case SettingsKey.WinEnterLaunchEnabled:
+                    {
+                        var value = CastingUtils.CastLosslesslyOrThrowException<Boolean>(setting.value);
+                        this.SetWinEnterLaunchEnabled(value);
+                    }
+                    break;
+                case SettingsKey.VerbosityLevel:
+                    {
+                        var value = CastingUtils.CastLosslesslyOrThrowException<UInt32>(setting.value);
+                        this.SetVerbosityLevel((VerbosityLevelOption)value);
+                    }
+                    break;
+                case SettingsKey.DetailedFeedback:
+                    {
+                        var value = CastingUtils.CastLosslesslyOrThrowException<Boolean>(setting.value);
+                        this.SetDetailedFeedback(value);
+                    }
+                    break;
                 case SettingsKey.IsAutoStartEnabled:
                     {
                         var value = CastingUtils.CastLosslesslyOrThrowException<Boolean>(setting.value);
-                        this.SetAutoStartEnabled(value);
+                        this.SetIsAutoStartEnabled(value);
                     }
                     break;
                 case SettingsKey.IsAutoStartOnLogonDesktopEnabled:
                     {
                         var value = CastingUtils.CastLosslesslyOrThrowException<Boolean>(setting.value);
-                        this.SetAutoStartOnLogonDesktopEnabled(value);
+                        this.SetIsAutoStartOnLogonDesktopEnabled(value);
                     }
                     break;
                 default:
@@ -266,22 +316,30 @@ namespace Morphic.ThirdPartyApps.Microsoft
                     return this.GetSpeechSpeed();
                 case SettingsKey.SpeechPitch:
                     return this.GetSpeechPitch();
-
-                //case SettingsKey.SpeechVolume:
-                //case SettingsKey.SpeechVoice:
-                //case SettingsKey.ShowKeyboardIntroduction:
-                //case SettingsKey.ShowBrowserSelection:
-                //case SettingsKey.ContextVerbosityLevel:
-                //case SettingsKey.RenderContextBeforeElement:
-                //case SettingsKey.DuckAudio:
-                //case SettingsKey.WinEnterLaunchEnabled:
-                //case SettingsKey.VerbosityLevel:
-                //case SettingsKey.DetailedFeedback:
-
+                case SettingsKey.SpeechVolume:
+                    return this.GetSpeechVolume();
+                case SettingsKey.SpeechVoice:
+                    return this.GetSpeechVoice();
+                case SettingsKey.ShowKeyboardIntroduction:
+                    return this.GetShowKeyboardIntroduction();
+                case SettingsKey.ShowBrowserSelection:
+                    return this.GetShowBrowserSelection();
+                case SettingsKey.ContextVerbosityLevel:
+                    return this.GetContextVerbosityLevel();
+                case SettingsKey.RenderContextBeforeElement:
+                    return this.GetRenderContextBeforeElement();
+                case SettingsKey.DuckAudio:
+                    return this.GetDuckAudio();
+                case SettingsKey.WinEnterLaunchEnabled:
+                    return this.GetWinEnterLaunchEnabled();
+                case SettingsKey.VerbosityLevel:
+                    return this.GetVerbosityLevel();
+                case SettingsKey.DetailedFeedback:
+                    return this.GetDetailedFeedback();
                 case "AutoStartEnabled":
-                    return this.GetAutoStartEnabled();
+                    return this.GetIsAutoStartEnabled();
                 case "AutoStartOnLogonDesktopEnabled":
-                    return this.GetAutoStartOnLogonDesktopEnabled();
+                    return this.GetIsAutoStartOnLogonDesktopEnabled();
                 default:
                     throw new ArgumentOutOfRangeException("Setting with key \"" + key + "\" does not exist.");
             }
@@ -291,13 +349,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetCoupleNarratorCursorKeyboard()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.CoupleNarratorCursorKeyboard);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.CoupleNarratorCursorKeyboard);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetCoupleNarratorCursorKeyboard(Boolean value)
@@ -311,13 +370,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetCoupleNarratorCursorMouse()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.CoupleNarratorCursorMouse);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.CoupleNarratorCursorMouse);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetCoupleNarratorCursorMouse(Boolean value)
@@ -331,13 +391,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetEchoChars()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.EchoChars);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.EchoChars);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetEchoChars(Boolean value)
@@ -351,13 +412,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetEchoWords()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.EchoWords);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.EchoWords);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetEchoWords(Boolean value)
@@ -371,13 +433,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetErrorNotificationType()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.ErrorNotificationType);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.ErrorNotificationType);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetErrorNotificationType(Boolean value)
@@ -391,13 +454,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetFastKeyEntryEnabled()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.FastKeyEntryEnabled);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.FastKeyEntryEnabled);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetFastKeyEntryEnabled(Boolean value)
@@ -406,17 +470,19 @@ namespace Morphic.ThirdPartyApps.Microsoft
 
             RegistryHelpers.SetRegistryValueData<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.FastKeyEntryEnabled, valueAsUInt32);
         }
+
         // returns null if setting does not exist in registry
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetFollowInsertion()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.FollowInsertion);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.FollowInsertion);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetFollowInsertion(Boolean value)
@@ -430,13 +496,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetInteractionMouse()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.InteractionMouse);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.InteractionMouse);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetInteractionMouse(Boolean value)
@@ -450,13 +517,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetIntonationPause()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.IntonationPause);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.IntonationPause);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetIntonationPause(Boolean value)
@@ -469,13 +537,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetLockNarratorKeys()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.LockNarratorKeys);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.LockNarratorKeys);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetLockNarratorKeys(Boolean value)
@@ -489,13 +558,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetNarratorCursorHighlight()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.NarratorCursorHighlight);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.NarratorCursorHighlight);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetNarratorCursorHighlight(Boolean value)
@@ -509,13 +579,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetPlayAudioCues()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.PlayAudioCues);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.PlayAudioCues);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetPlayAudioCues(Boolean value)
@@ -529,13 +600,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetReadingWithIntent()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.ReadingWithIntent);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.ReadingWithIntent);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetReadingWithIntent(Boolean value)
@@ -549,13 +621,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetReadHints()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.ReadHints);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.ReadHints);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetReadHints(Boolean value)
@@ -571,19 +644,20 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // TODO: translate this from -10 to 10 as appropriate
         public UInt32? GetSpeechSpeed()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.SpeechSpeed);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.SpeechSpeed);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
             // TODO: validate the range
-            if (valueAsNullableUInt32! < 0 || valueAsNullableUInt32! > 20)
+            if (valueAsUInt32 < 0 || valueAsUInt32 > 20)
             {
                 throw new InvalidCastException();
             }
 
-            return valueAsNullableUInt32;
+            return valueAsUInt32;
         }
 
         // TODO: evaluate the way that this data is presented in Windows and in the solutions registry and how we are to store it (as there may be a larger mapping)
@@ -605,19 +679,20 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public UInt32? GetSpeechPitch()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.SpeechPitch);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.SpeechPitch);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
             // TODO: validate the range
-            if (valueAsNullableUInt32! < 0 || valueAsNullableUInt32! > 20)
+            if (valueAsUInt32 < 0 || valueAsUInt32 > 20)
             {
                 throw new InvalidCastException();
             }
 
-            return valueAsNullableUInt32;
+            return valueAsUInt32;
         }
 
         // TODO: evaluate the way that this data is presented in Windows and in the solutions registry and how we are to store it (as there may be a larger mapping)
@@ -633,39 +708,359 @@ namespace Morphic.ThirdPartyApps.Microsoft
             RegistryHelpers.SetRegistryValueData<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.SpeechPitch, value);
         }
 
+        // TODO: evaluate the way that this data is presented in Windows and in the solutions registry and how we are to store it (as there may be a larger mapping)
+        // TODO: this range appears to be 0.00-0.99 (or 0.00-1.00), but is stored as a DWORD?  Dig in and determine how to map this.
+        // returns null if setting does not exist in registry
+        // throws InvalidCastException if registry data is invalid
+        public UInt32? GetSpeechVolume()
+        {
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.SpeechVolume);
+            if (valueAsNullableUInt32.HasValue == false)
+            {
+                return null;
+            }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
+            // TODO: validate the range
+            if (valueAsUInt32 < 0 || valueAsUInt32 > 1)
+            {
+                throw new InvalidCastException();
+            }
 
+            return valueAsUInt32;
+        }
 
+        // TODO: evaluate the way that this data is presented in Windows and in the solutions registry and how we are to store it (as there may be a larger mapping)
+        // TODO: this range appears to be 0.00-0.99 (or 0.00-1.00), but is stored as a DWORD?  Dig in and determine how to map this.
+        // NOTE: valid speech volume range is ??? // TODO: establish the actual range
+        public void SetSpeechVolume(UInt32 value)
+        {
+            // TODO: validate the range
+            if (value < 0 || value > 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value));
+            }
 
+            RegistryHelpers.SetRegistryValueData<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.SpeechVolume, value);
+        }
 
+        // TODO: evaluate the way that this data is presented in Windows and in the solutions registry and how we are to store it (as there may be a larger mapping)
+        // returns null if setting does not exist in registry
+        // throws InvalidCastException if registry data is invalid
+        // TODO: translate this to/from an enum if appropriate
+        public String? GetSpeechVoice()
+        {
+            var valueAsNullableString = RegistryHelpers.GetRegistryValueData_ReferenceType_NullDefault<String>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.SpeechVoice);
+            if (valueAsNullableString == null)
+            {
+                return null;
+            }
+            var valueAsString = valueAsNullableString!;
 
+            // TODO: validate the result (and consider making it an enum); see the solution registry for example values (and determine if they are exhaustive)
+            //if (valueAsString! != "<text goes here>")
+            //{
+            //    throw new InvalidCastException();
+            //}
 
+            return valueAsString;
+        }
 
+        // TODO: evaluate the way that this data is presented in Windows and in the solutions registry and how we are to store it (as there may be a larger mapping)
+        // TODO: translate this to/from an enum if appropriate
+        public void SetSpeechVoice(String value)
+        {
+            // TODO: validate the value (and consider making it an enum); see the solution registry for example values (and determine if they are exhaustive)
+            //if (value < 0 != "<text goes here>")
+            //{
+            //    throw new ArgumentOutOfRangeException(nameof(value));
+            //}
 
+            RegistryHelpers.SetRegistryValueData<String>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.SpeechVoice, value);
+        }
 
+        // returns null if setting does not exist in registry
+        // throws InvalidCastException if registry data is invalid
+        public Boolean? GetShowKeyboardIntroduction()
+        {
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.ShowKeyboardIntroduction);
+            if (valueAsNullableUInt32.HasValue == false)
+            {
+                return null;
+            }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
+        }
 
+        public void SetShowKeyboardIntroduction(Boolean value)
+        {
+            var valueAsUInt32 = CastingUtils.ConvertBooleanToRegistryUInt32(value);
 
+            RegistryHelpers.SetRegistryValueData<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.ShowKeyboardIntroduction, valueAsUInt32);
+        }
 
+        // returns null if setting does not exist in registry
+        // throws InvalidCastException if registry data is invalid
+        public Boolean? GetShowBrowserSelection()
+        {
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.ShowBrowserSelection);
+            if (valueAsNullableUInt32.HasValue == false)
+            {
+                return null;
+            }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
+
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
+        }
+
+        public void SetShowBrowserSelection(Boolean value)
+        {
+            var valueAsUInt32 = CastingUtils.ConvertBooleanToRegistryUInt32(value);
+
+            RegistryHelpers.SetRegistryValueData<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.ShowBrowserSelection, valueAsUInt32);
+        }
+
+        // TODO: validate the options
+        // TODO: decide on a final name (ContextVerbosityLevelOption vs. ContextVerbosityLevel etc.)
+        public enum ContextVerbosityLevelOption : UInt32
+        {
+            NoContextRendering = 0,
+            SoundsOnly = 1,
+            ImmediateContext = 2,
+            ImmediateContextNameAndType = 3,
+            FullContextOfNewControl = 4,
+            FullContextOfBothTheOldControlAndNewControl = 5
+        }
+
+        public ContextVerbosityLevelOption? GetContextVerbosityLevel()
+        {
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.ContextVerbosityLevel);
+            if (valueAsNullableUInt32.HasValue == false)
+            {
+                return null;
+            }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
+
+            // TODO: validate the range
+            switch (valueAsUInt32)
+            {
+                case (UInt32)ContextVerbosityLevelOption.NoContextRendering:
+                case (UInt32)ContextVerbosityLevelOption.SoundsOnly:
+                case (UInt32)ContextVerbosityLevelOption.ImmediateContext:
+                case (UInt32)ContextVerbosityLevelOption.ImmediateContextNameAndType:
+                case (UInt32)ContextVerbosityLevelOption.FullContextOfNewControl:
+                case (UInt32)ContextVerbosityLevelOption.FullContextOfBothTheOldControlAndNewControl:
+                    break;
+                default:
+                    throw new InvalidCastException();
+            }
+
+            return (ContextVerbosityLevelOption)valueAsUInt32;
+        }
+
+        public void SetContextVerbosityLevel(ContextVerbosityLevelOption value)
+        {
+            // TODO: validate the range
+            switch ((UInt32)value)
+            {
+                case (UInt32)ContextVerbosityLevelOption.NoContextRendering:
+                case (UInt32)ContextVerbosityLevelOption.SoundsOnly:
+                case (UInt32)ContextVerbosityLevelOption.ImmediateContext:
+                case (UInt32)ContextVerbosityLevelOption.ImmediateContextNameAndType:
+                case (UInt32)ContextVerbosityLevelOption.FullContextOfNewControl:
+                case (UInt32)ContextVerbosityLevelOption.FullContextOfBothTheOldControlAndNewControl:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+
+            RegistryHelpers.SetRegistryValueData<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.ContextVerbosityLevel, (UInt32)value);
+        }
+
+        // TODO: validate the options
+        // TODO: decide on a final name (RenderContextBeforeElementOption vs. RenderContextBeforeElement etc.)
+        public enum RenderContextBeforeElementOption : UInt32
+        {
+            Before = 0,
+            After = 1
+        }
+
+        public RenderContextBeforeElementOption? GetRenderContextBeforeElement()
+        {
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.RenderContextBeforeElement);
+            if (valueAsNullableUInt32.HasValue == false)
+            {
+                return null;
+            }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
+
+            // TODO: validate the range
+            switch (valueAsUInt32)
+            {
+                case (UInt32)RenderContextBeforeElementOption.Before:
+                case (UInt32)RenderContextBeforeElementOption.After:
+                    break;
+                default:
+                    throw new InvalidCastException();
+            }
+
+            return (RenderContextBeforeElementOption)valueAsUInt32;
+        }
+
+        public void SetRenderContextBeforeElement(RenderContextBeforeElementOption value)
+        {
+            // TODO: validate the range
+            switch ((UInt32)value)
+            {
+                case (UInt32)RenderContextBeforeElementOption.Before:
+                case (UInt32)RenderContextBeforeElementOption.After:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+
+            RegistryHelpers.SetRegistryValueData<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.RenderContextBeforeElement, (UInt32)value);
+        }
+
+        // returns null if setting does not exist in registry
+        // throws InvalidCastException if registry data is invalid
+        public Boolean? GetDuckAudio()
+        {
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.DuckAudio);
+            if (valueAsNullableUInt32.HasValue == false)
+            {
+                return null;
+            }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
+
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
+        }
+
+        public void SetDuckAudio(Boolean value)
+        {
+            var valueAsUInt32 = CastingUtils.ConvertBooleanToRegistryUInt32(value);
+
+            RegistryHelpers.SetRegistryValueData<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.DuckAudio, valueAsUInt32);
+        }
+
+        // returns null if setting does not exist in registry
+        // throws InvalidCastException if registry data is invalid
+        public Boolean? GetWinEnterLaunchEnabled()
+        {
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.WinEnterLaunchEnabled);
+            if (valueAsNullableUInt32.HasValue == false)
+            {
+                return null;
+            }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
+
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32!);
+        }
+
+        public void SetWinEnterLaunchEnabled(Boolean value)
+        {
+            var valueAsUInt32 = CastingUtils.ConvertBooleanToRegistryUInt32(value);
+
+            RegistryHelpers.SetRegistryValueData<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.WinEnterLaunchEnabled, valueAsUInt32);
+        }
+
+        // TODO: validate the options
+        // TODO: decide on a final name (ContextVerbosityLevelOption vs. ContextVerbosityLevel etc.)
+        public enum VerbosityLevelOption : UInt32
+        {
+            TextOnly = 0,
+            HeadersAndErrors = 1,
+            BasicInformation = 2,
+            OtherAnnotations = 3,
+            ExtendedFormatting = 4,
+            LayoutAndAnimationInfo = 5
+        }
+
+        public VerbosityLevelOption? GetVerbosityLevel()
+        {
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.VerbosityLevel);
+            if (valueAsNullableUInt32.HasValue == false)
+            {
+                return null;
+            }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
+
+            // TODO: validate the range
+            switch (valueAsUInt32)
+            {
+                case (UInt32)VerbosityLevelOption.TextOnly:
+                case (UInt32)VerbosityLevelOption.HeadersAndErrors:
+                case (UInt32)VerbosityLevelOption.BasicInformation:
+                case (UInt32)VerbosityLevelOption.OtherAnnotations:
+                case (UInt32)VerbosityLevelOption.ExtendedFormatting:
+                case (UInt32)VerbosityLevelOption.LayoutAndAnimationInfo:
+                    break;
+                default:
+                    throw new InvalidCastException();
+            }
+
+            return (VerbosityLevelOption)valueAsUInt32;
+        }
+
+        public void SetVerbosityLevel(VerbosityLevelOption value)
+        {
+            // TODO: validate the range
+            switch ((UInt32)value)
+            {
+                case (UInt32)VerbosityLevelOption.TextOnly:
+                case (UInt32)VerbosityLevelOption.HeadersAndErrors:
+                case (UInt32)VerbosityLevelOption.BasicInformation:
+                case (UInt32)VerbosityLevelOption.OtherAnnotations:
+                case (UInt32)VerbosityLevelOption.ExtendedFormatting:
+                case (UInt32)VerbosityLevelOption.LayoutAndAnimationInfo:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+
+            RegistryHelpers.SetRegistryValueData<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.VerbosityLevel, (UInt32)value);
+        }
+
+        // returns null if setting does not exist in registry
+        // throws InvalidCastException if registry data is invalid
+        public Boolean? GetDetailedFeedback()
+        {
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.DetailedFeedback);
+            if (valueAsNullableUInt32.HasValue == false)
+            {
+                return null;
+            }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
+
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
+        }
+
+        public void SetDetailedFeedback(Boolean value)
+        {
+            var valueAsUInt32 = CastingUtils.ConvertBooleanToRegistryUInt32(value);
+
+            RegistryHelpers.SetRegistryValueData<UInt32>(BASE_REGISTRY_KEY, NARRATOR_REGISTRY_KEY_PATH, SettingsKey.DetailedFeedback, valueAsUInt32);
+        }
 
         // TODO: consider special-casing these "system settings"
 
-        public Boolean? GetAutoStartEnabled()
+        public Boolean? GetIsAutoStartEnabled()
         {
             throw new NotImplementedException();
         }
 
-        public void SetAutoStartEnabled(Boolean value)
+        public void SetIsAutoStartEnabled(Boolean value)
         {
             throw new NotImplementedException();
         }
 
-        public Boolean GetAutoStartOnLogonDesktopEnabled()
+        public Boolean GetIsAutoStartOnLogonDesktopEnabled()
         {
             throw new NotImplementedException();
         }
 
-        public void SetAutoStartOnLogonDesktopEnabled(Boolean value)
+        public void SetIsAutoStartOnLogonDesktopEnabled(Boolean value)
         {
             throw new NotImplementedException();
         }

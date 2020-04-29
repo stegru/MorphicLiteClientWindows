@@ -57,6 +57,7 @@ namespace Morphic.ThirdPartyApps.Microsoft
             public const String ZoomIncrement = "ZoomIncrement";
             public const String UseBitmapSmoothing = "UseBitmapSmoothing";
             public const String LensHeight = "LensHeight";
+            // TODO: the following settings are marked as "system settings"; treat them as special cases if necessary
             public const String IsAutoStartEnabled = "IsAutoStartEnabled";
             public const String IsAutoStartOnLogonDesktopEnabled = "IsAutoStartOnLogonDesktopEnabled";
         }
@@ -144,13 +145,13 @@ namespace Morphic.ThirdPartyApps.Microsoft
                 case SettingsKey.IsAutoStartEnabled:
                     {
                         var value = CastingUtils.CastLosslesslyOrThrowException<Boolean>(setting.value);
-                        this.SetAutoStartEnabled(value);
+                        this.SetIsAutoStartEnabled(value);
                     }
                     break;
                 case SettingsKey.IsAutoStartOnLogonDesktopEnabled:
                     {
                         var value = CastingUtils.CastLosslesslyOrThrowException<Boolean>(setting.value);
-                        this.SetAutoStartOnLogonDesktopEnabled(value);
+                        this.SetIsAutoStartOnLogonDesktopEnabled(value);
                     }
                     break;
                 default:
@@ -202,9 +203,9 @@ namespace Morphic.ThirdPartyApps.Microsoft
                 case SettingsKey.LensHeight:
                     return this.GetLensHeight();
                 case SettingsKey.IsAutoStartEnabled:
-                    return this.GetAutoStartEnabled();
+                    return this.GetIsAutoStartEnabled();
                 case SettingsKey.IsAutoStartOnLogonDesktopEnabled:
-                    return this.GetAutoStartOnLogonDesktopEnabled();
+                    return this.GetIsAutoStartOnLogonDesktopEnabled();
                 default:
                     throw new ArgumentOutOfRangeException("Setting with key \"" + key + "\" does not exist.");
             }
@@ -214,13 +215,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public Boolean? GetInvert()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.Invert);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.Invert);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetInvert(Boolean value)
@@ -234,19 +236,20 @@ namespace Morphic.ThirdPartyApps.Microsoft
         // throws InvalidCastException if registry data is invalid
         public UInt32? GetMagnification()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.Magnification);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.Magnification);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
             // TODO: validate the range
-            if (valueAsNullableUInt32! < 100 || valueAsNullableUInt32! > 1600)
+            if (valueAsUInt32 < 100 || valueAsUInt32 > 1600)
             {
                 throw new InvalidCastException();
             }
 
-            return valueAsNullableUInt32;
+            return valueAsUInt32;
         }
 
         // NOTE: valid magnification range is 100-1600 (as measured in percent)
@@ -263,13 +266,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
 
         public Boolean? GetFollowFocus()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.FollowFocus);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.FollowFocus);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetFollowFocus(Boolean value)
@@ -281,13 +285,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
 
         public Boolean? GetFollowCaret()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.FollowCaret);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.FollowCaret);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetFollowCaret(Boolean value)
@@ -299,13 +304,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
 
         public Boolean? GetFollowMouse()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.FollowMouse);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.FollowMouse);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetFollowMouse(Boolean value)
@@ -317,13 +323,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
 
         public Boolean? GetFollowNarrator()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.FollowNarrator);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.FollowNarrator);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetFollowNarrator(Boolean value)
@@ -344,14 +351,15 @@ namespace Morphic.ThirdPartyApps.Microsoft
 
         public MagnificationModeOption? GetMagnificationMode()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.MagnificationMode);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.MagnificationMode);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
             // TODO: validate the range
-            switch (valueAsNullableUInt32.Value)
+            switch (valueAsUInt32)
             {
                 case (UInt32)MagnificationModeOption.Docked:
                 case (UInt32)MagnificationModeOption.FullScreen:
@@ -361,7 +369,7 @@ namespace Morphic.ThirdPartyApps.Microsoft
                     throw new InvalidCastException();
             }
 
-            return (MagnificationModeOption)valueAsNullableUInt32.Value;
+            return (MagnificationModeOption)valueAsUInt32;
         }
 
         public void SetMagnificationMode(MagnificationModeOption value)
@@ -382,13 +390,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
 
         public Boolean? GetFadeToMagIcon()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.FadeToMagIcon);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.FadeToMagIcon);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetFadeToMagIcon(Boolean value)
@@ -400,8 +409,8 @@ namespace Morphic.ThirdPartyApps.Microsoft
 
         public UInt32? GetZoomIncrement()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.ZoomIncrement);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.ZoomIncrement);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
@@ -424,13 +433,14 @@ namespace Morphic.ThirdPartyApps.Microsoft
 
         public Boolean? GetUseBitmapSmoothing()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.UseBitmapSmoothing);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.UseBitmapSmoothing);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
-            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsNullableUInt32.Value);
+            return CastingUtils.CastRegistryUInt32ValueToBooleanOrThrowException(valueAsUInt32);
         }
 
         public void SetUseBitmapSmoothing(Boolean value)
@@ -442,19 +452,20 @@ namespace Morphic.ThirdPartyApps.Microsoft
 
         public UInt32? GetLensHeight()
         {
-            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryEntry_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.LensHeight);
-            if (valueAsNullableUInt32 == null)
+            var valueAsNullableUInt32 = RegistryHelpers.GetRegistryValueData_ValueType_NullDefault<UInt32>(BASE_REGISTRY_KEY, SCREEN_MAGNIFIER_REGISTRY_KEY_PATH, SettingsKey.LensHeight);
+            if (valueAsNullableUInt32.HasValue == false)
             {
                 return null;
             }
+            var valueAsUInt32 = valueAsNullableUInt32!.Value;
 
             // TODO: validate the range
-            if (valueAsNullableUInt32! < 10 || valueAsNullableUInt32! > 100)
+            if (valueAsUInt32 < 10 || valueAsUInt32 > 100)
             {
                 throw new InvalidCastException();
             }
 
-            return valueAsNullableUInt32;
+            return valueAsUInt32;
         }
 
         public void SetLensHeight(UInt32 value)
@@ -470,22 +481,22 @@ namespace Morphic.ThirdPartyApps.Microsoft
 
         // TODO: consider special-casing these "system settings"
 
-        public Boolean? GetAutoStartEnabled()
+        public Boolean? GetIsAutoStartEnabled()
         {
             throw new NotImplementedException();
         }
 
-        public void SetAutoStartEnabled(Boolean value)
+        public void SetIsAutoStartEnabled(Boolean value)
         {
             throw new NotImplementedException();
         }
 
-        public Boolean GetAutoStartOnLogonDesktopEnabled()
+        public Boolean GetIsAutoStartOnLogonDesktopEnabled()
         {
             throw new NotImplementedException();
         }
 
-        public void SetAutoStartOnLogonDesktopEnabled(Boolean value)
+        public void SetIsAutoStartOnLogonDesktopEnabled(Boolean value)
         {
             throw new NotImplementedException();
         }

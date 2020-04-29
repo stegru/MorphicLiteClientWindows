@@ -31,11 +31,24 @@ namespace Morphic.ThirdPartyApps
     internal class RegistryHelpers
     {
         // throws RegistryKeyNotFoundException if the path does not exist
-        public static T? GetRegistryEntry_NullDefault<T>(RegistryKey baseKey, String path, String name) where T : struct
+        public static T? GetRegistryValueData_ValueType_NullDefault<T>(RegistryKey baseKey, String path, String name) where T : struct
         {
             try
             {
-                return RegistryHelpers.GetRegistryValueData<T>(baseKey, path, name);
+                return RegistryHelpers.GetRegistryValueData_ValueType<T>(baseKey, path, name);
+            }
+            catch (RegistryKeyNotFoundException)
+            {
+                return null;
+            }
+        }
+
+        // throws RegistryKeyNotFoundException if the path does not exist
+        public static T? GetRegistryValueData_ReferenceType_NullDefault<T>(RegistryKey baseKey, String path, String name) where T : class
+        {
+            try
+            {
+                return RegistryHelpers.GetRegistryValueData_ReferenceType<T>(baseKey, path, name);
             }
             catch (RegistryKeyNotFoundException)
             {
@@ -45,7 +58,44 @@ namespace Morphic.ThirdPartyApps
 
         // TODO: verify that struct will accept primary types like Boolean, UInt32, etc.
         // throws RegistryKeyNotFoundException if the path does not exist
-        public static T? GetRegistryValueData<T>(RegistryKey baseKey, String path, String name) where T: struct
+        public static T? GetRegistryValueData_ValueType<T>(RegistryKey baseKey, String path, String name) where T: struct
+        {
+            var registryKey = baseKey.OpenSubKey(path);
+            if (registryKey == null)
+            {
+                throw new RegistryKeyNotFoundException();
+            }
+
+            // get the value (data)
+            var valueAsObject = registryKey.GetValue(name);
+            if (valueAsObject == null)
+            {
+                // if the key does not exist, return null
+                return null;
+            }
+
+            // WORKAROUND: since RegistryKey returns DWORDs as Int32s (instead of as the unsigned UInt32s that they are), correct this if the user requested a UInt32 value
+            if ((valueAsObject is Int32) && (typeof(T) == typeof(UInt32)))
+            {
+                var valueAsInt32 = (Int32)valueAsObject;
+                var valueAsBytes = BitConverter.GetBytes(valueAsInt32);
+                var valueAsUInt32 = BitConverter.ToUInt32(valueAsBytes);
+                valueAsObject = valueAsUInt32;
+            }
+            // WORKAROUND: since RegistryKey returns QWORDs as Int64s (instead of as the unsigned UInt64s that they are), correct this if the user requested a UInt64 value
+            if ((valueAsObject is Int64) && (typeof(T) == typeof(UInt64)))
+            {
+                var valueAsInt64 = (Int64)valueAsObject;
+                var valueAsBytes = BitConverter.GetBytes(valueAsInt64);
+                var valueAsUInt64 = BitConverter.ToUInt64(valueAsBytes);
+                valueAsObject = valueAsUInt64;
+            }
+
+            return (T)valueAsObject;
+        }
+
+        // throws RegistryKeyNotFoundException if the path does not exist
+        public static T? GetRegistryValueData_ReferenceType<T>(RegistryKey baseKey, String path, String name) where T : class
         {
             var registryKey = baseKey.OpenSubKey(path);
             if (registryKey == null)
@@ -64,7 +114,8 @@ namespace Morphic.ThirdPartyApps
             return (T)valueAsObject;
         }
 
-        public static void SetRegistryValueData<T>(RegistryKey baseKey, String path, String name, T value)
+        // throws InvalidCastException if the type T is not a valid registry value data kind
+        public static void SetRegistryValueData<T>(RegistryKey baseKey, String path, String valueName, T valueData)
         {
             var registryKey = baseKey.OpenSubKey(path, true);
             if (registryKey == null)
@@ -74,11 +125,34 @@ namespace Morphic.ThirdPartyApps
 
             // TODO: capture the type of the generic type "T" and specify the registryValueKind accordingly (as an extra level of safety)
 
-            // set the value (data)
-            registryKey.SetValue(name, value);
+            RegistryValueKind registryValueKind;
+            if (typeof(T) == typeof(UInt32))
+            {
+                registryValueKind = RegistryValueKind.DWord;
+            } 
+            else if (typeof(T) == typeof(Int32))
+            {
+                registryValueKind = RegistryValueKind.DWord;
+            }
+            else if (typeof(T) == typeof(UInt64))
+            {
+                registryValueKind = RegistryValueKind.QWord;
+            }
+            else if (typeof(T) == typeof(Int64))
+            {
+                registryValueKind = RegistryValueKind.QWord;
+            }
+            else if (typeof(T) == typeof(String))
+            {
+                registryValueKind = RegistryValueKind.String;
+            }
+            else
+            {
+                throw new InvalidCastException("Type " + typeof(T).Name + " cannot be cast to a valid registry value data type.");
+            }
 
-            //Microsoft.Win32.RegistryValueKind registryValueKind;
-            //registryKey.SetValue(name, value, registryValueKind);
+            // set the value (data)
+            registryKey.SetValue(valueName, valueData, registryValueKind);
         }
     }
 }
