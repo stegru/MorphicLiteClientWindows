@@ -644,5 +644,272 @@ namespace Morphic.Windows.Native
                 return new string(value, 0, nullTerminatorPos);
             }
         }
+
+        #region High contrast settings
+
+        public struct HighContrastFeatureSettings
+        {
+            public Boolean FeatureAvailable;
+            public Boolean FeatureEnabled;
+            public Boolean HotkeyAvailable;
+            public Boolean HotkeyEnabled;
+            public Boolean HotkeyConfirmationEnabled;
+            public Boolean HotkeySoundEnabled;
+            //public Boolean IndicatorEnabled;
+
+            public String? HighContrastTheme;
+
+            internal HighContrastFeatureSettings(UInt32 dwFlags, String? highContrastTheme)
+            {
+                this.FeatureAvailable = ((dwFlags & (UInt32)WindowsApi.HighContrastFlags.HCF_AVAILABLE) != 0);
+                this.FeatureEnabled = ((dwFlags & (UInt32)WindowsApi.HighContrastFlags.HCF_HIGHCONTRASTON) != 0);
+                this.HotkeyAvailable = ((dwFlags & (UInt32)WindowsApi.HighContrastFlags.HCF_HOTKEYAVAILABLE) != 0);
+                this.HotkeyEnabled = ((dwFlags & (UInt32)WindowsApi.HighContrastFlags.HCF_HOTKEYACTIVE) != 0);
+                this.HotkeyConfirmationEnabled = ((dwFlags & (UInt32)WindowsApi.HighContrastFlags.HCF_CONFIRMHOTKEY) != 0);
+                this.HotkeySoundEnabled = ((dwFlags & (UInt32)WindowsApi.HighContrastFlags.HCF_HOTKEYSOUND) != 0);
+                //this.IndicatorEnabled = ((dwFlags & (UInt32)WindowsApi.HighContrastFlags.HCF_INDICATOR) != 0);
+
+                this.HighContrastTheme = highContrastTheme;
+            }
+        }
+
+        public static HighContrastFeatureSettings GetHighContrastFeatureSettings()
+        {
+            var highContrastStruct = new WindowsApi.HIGHCONTRAST(0, IntPtr.Zero);
+
+            var success = WindowsApi.SystemParametersInfo_HIGHCONTRAST(WindowsApi.UIActionParameter.SPI_GETHIGHCONTRAST, highContrastStruct.cbSize, ref highContrastStruct, 0);
+            if (success == false)
+            {
+                throw Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error());
+            }
+
+            String? highContrastTheme = null;
+            if (highContrastStruct.lpszDefaultScheme != IntPtr.Zero)
+            {
+                highContrastTheme = Marshal.PtrToStringUni(highContrastStruct.lpszDefaultScheme);
+            }
+
+            var result = new HighContrastFeatureSettings(highContrastStruct.dwFlags, highContrastTheme);
+
+            return result;
+        }
+
+        public static Boolean GetHighContrastFeatureEnabled()
+        {
+            var highContrastSettings = Display.GetHighContrastFeatureSettings();
+
+            return highContrastSettings.FeatureEnabled;
+        }
+
+        // NOTE: this function operates synchronously (i.e. it blocks the calling thread while changing the high contrast mode's enabled state); however,
+        //       Windows may asynchronously complete settings/theme changes after this function has completed
+        public static void SetHighContrastFeatureSettings(HighContrastFeatureSettings settings)
+        {
+            // NOTE: we capture the settings directly as a DWORD so that we can preserve any bits which we do not flip (which is also forwards-compatible, in case new features become available in the future)
+            var highContrastStruct = new WindowsApi.HIGHCONTRAST(0, IntPtr.Zero);
+
+            // capture the current high contrast mode settings
+            var success = WindowsApi.SystemParametersInfo_HIGHCONTRAST(WindowsApi.UIActionParameter.SPI_GETHIGHCONTRAST, highContrastStruct.cbSize, ref highContrastStruct, 0);
+            if (success == false)
+            {
+                throw Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error());
+            }
+
+            String? currentHighContrastTheme = null;
+            if (highContrastStruct.lpszDefaultScheme != IntPtr.Zero)
+            {
+                currentHighContrastTheme = Marshal.PtrToStringUni(highContrastStruct.lpszDefaultScheme);
+            }
+
+            var currentSettings = new HighContrastFeatureSettings(highContrastStruct.dwFlags, currentHighContrastTheme);
+
+            Boolean hcfEnabledChanged = false;
+            Boolean hcfThemeChanged = false;
+
+            // FeatureEnabled
+            if (settings.FeatureEnabled != currentSettings.FeatureEnabled)
+            {
+                if (settings.FeatureEnabled == true)
+                {
+                    highContrastStruct.dwFlags |= (UInt32)WindowsApi.HighContrastFlags.HCF_HIGHCONTRASTON;
+                }
+                else
+                {
+                    highContrastStruct.dwFlags &= ~(UInt32)WindowsApi.HighContrastFlags.HCF_HIGHCONTRASTON;
+                }
+                hcfEnabledChanged = true;
+            }
+            // FeatureAvailable
+            if (settings.FeatureAvailable != currentSettings.FeatureAvailable)
+            {
+                if (settings.FeatureAvailable == true)
+                {
+                    highContrastStruct.dwFlags |= (UInt32)WindowsApi.HighContrastFlags.HCF_AVAILABLE;
+                }
+                else
+                {
+                    highContrastStruct.dwFlags &= ~(UInt32)WindowsApi.HighContrastFlags.HCF_AVAILABLE;
+                }
+            }
+            // HotkeyAvailable
+            if (settings.HotkeyAvailable != currentSettings.HotkeyAvailable)
+            {
+                // this setting cannot be set by an application
+                throw new ArgumentException("settings.HotkeyAvailable is a read-only property");
+            }
+            // HotkeyEnabled
+            if (settings.HotkeyEnabled != currentSettings.HotkeyEnabled)
+            {
+                if (settings.HotkeyEnabled == true)
+                {
+                    highContrastStruct.dwFlags |= (UInt32)WindowsApi.HighContrastFlags.HCF_HOTKEYACTIVE;
+                }
+                else
+                {
+                    highContrastStruct.dwFlags &= ~(UInt32)WindowsApi.HighContrastFlags.HCF_HOTKEYACTIVE;
+                }
+            }
+            // HotkeyConfirmationEnabled
+            if (settings.HotkeyConfirmationEnabled != currentSettings.HotkeyConfirmationEnabled)
+            {
+                if (settings.HotkeyConfirmationEnabled == true)
+                {
+                    highContrastStruct.dwFlags |= (UInt32)WindowsApi.HighContrastFlags.HCF_CONFIRMHOTKEY;
+                }
+                else
+                {
+                    highContrastStruct.dwFlags &= ~(UInt32)WindowsApi.HighContrastFlags.HCF_CONFIRMHOTKEY;
+                }
+            }
+            // HotkeySoundEnabled
+            if (settings.HotkeySoundEnabled != currentSettings.HotkeySoundEnabled)
+            {
+                if (settings.HotkeySoundEnabled == true)
+                {
+                    highContrastStruct.dwFlags |= (UInt32)WindowsApi.HighContrastFlags.HCF_HOTKEYSOUND;
+                }
+                else
+                {
+                    highContrastStruct.dwFlags &= ~(UInt32)WindowsApi.HighContrastFlags.HCF_HOTKEYSOUND;
+                }
+            }
+            //// IndicatorEnabled
+            //if (settings.IndicatorEnabled != currentSettings.IndicatorEnabled)
+            //{
+            //    if (settings.IndicatorEnabled == true)
+            //    {
+            //        highContrastStruct.dwFlags |= (UInt32)WindowsApi.HighContrastFlags.HCF_INDICATOR;
+            //    }
+            //    else
+            //    {
+            //        highContrastStruct.dwFlags &= ~(UInt32)WindowsApi.HighContrastFlags.HCF_INDICATOR;
+            //    }
+            //}
+            // HighContrastTheme
+            if (settings.HighContrastTheme != currentSettings.HighContrastTheme)
+            {
+                highContrastStruct.lpszDefaultScheme = Marshal.StringToHGlobalUni(settings.HighContrastTheme);
+                hcfThemeChanged = true;
+            }
+
+            // if the high contrast feature isn't being turned on/off and the theme isn't changing, then don't re-apply theme changes (because doing so would consume milliseconds or maybe even a second or more synchronously...with no benefit)
+            if (hcfEnabledChanged == false && hcfThemeChanged == false)
+            {
+                highContrastStruct.dwFlags |= (UInt32)WindowsApi.HighContrastFlags.NoFlagNameSupported;
+            }
+
+            success = WindowsApi.SystemParametersInfo_HIGHCONTRAST(WindowsApi.UIActionParameter.SPI_SETHIGHCONTRAST, highContrastStruct.cbSize, ref highContrastStruct, WindowsApi.SPIF.SPIF_UPDATEINIFILE | WindowsApi.SPIF.SPIF_SENDWININICHANGE);
+            if (success == false)
+            {
+                throw Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error());
+            }
+        }
+
+        // NOTE: this function operates synchronously (i.e. it blocks the calling thread while changing the high contrast mode's enabled state); however
+        //       Windows may asynchronously complete settings/theme changes after this function has completed
+        public static void SetHighContrastFeatureEnabled(Boolean value)
+        {
+            var highContrastFeatureSettings = GetHighContrastFeatureSettings();
+
+            highContrastFeatureSettings.FeatureEnabled = value;
+
+            Display.SetHighContrastFeatureSettings(highContrastFeatureSettings);
+        }
+
+        public static List<String> GetThemes(String directoryPath)
+        {
+            var result = new List<String>();
+
+            var themeFilenames = System.IO.Directory.GetFiles(directoryPath, "*.theme");
+            foreach (var themeFilename in themeFilenames)
+            {
+                // open each file as an INI file and read out its "[Theme] > DisplayName" value
+                var iniReaderWriter = new Windows.Native.IniFileReaderWriter(themeFilename);
+                String iniDisplayNameValue;
+                try
+                {
+                    iniDisplayNameValue = iniReaderWriter.ReadValue("DisplayName", "Theme");
+                }
+                catch
+                {
+                    // graceful degradation: if we cannot get this theme's display name, skip this theme
+                    continue;
+
+                    // NOTE: if graceful degradation is not what we want, we could throw an exception instead
+                    //throw new Exception(...);
+                }
+
+                // if the the retrieved DisplayName entry's value is an indirect string (e.g. a resource string in a system DLL), resolve it now
+
+                String displayName;
+
+                // NOTE: SHLoadIndirectString will pass through literal names (i.e. ones that don't start with @), so checking for a start character of '@' isn't strictly necessary
+                if (iniDisplayNameValue.Length >= 1 && iniDisplayNameValue.Substring(0, 1) == "@")
+                {
+                    // if the diplayName starts with @, then it's a reference to a string resource inside a DLL; retrieve it now
+
+                    // create an output buffer
+                    const UInt32 cchOutBuf = 257; // 256 wide characters plus a null terminator; note that this is a somewhat arbitrary length
+                    var pszOutBuf = Marshal.AllocHGlobal((Int32)cchOutBuf * 2);
+                    try
+                    {
+                        // resolve the indirect string
+                        var shlisResult = WindowsApi.SHLoadIndirectString(iniDisplayNameValue, pszOutBuf, cchOutBuf, IntPtr.Zero);
+                        if (shlisResult != WindowsApi.S_OK)
+                        {
+                            // graceful degradation: if we cannot get the theme display name, skip this theme
+                            continue;
+
+                            // NOTE: if graceful degradation is not what we want, we could throw the result as an exception instead
+                            //throw Marshal.GetExceptionForHR(shlisResult);
+                        }
+
+                        displayName = Marshal.PtrToStringUni(pszOutBuf);
+                    }
+                    finally
+                    {
+                        Marshal.FreeHGlobal(pszOutBuf);
+                    }
+                }
+                else
+                {
+                    // if the name doesn't start with an @, use the name directly
+                    displayName = iniDisplayNameValue;
+                }
+
+                result.Add(displayName);
+            }
+
+            return result;
+        }
+
+        public static List<String> GetHighContrastThemes()
+        {
+            var directoryPathToHighContrastThemes = Environment.ExpandEnvironmentVariables("%SystemRoot%\\resources\\Ease of Access Themes");
+
+            return GetThemes(directoryPathToHighContrastThemes);
+        }
+
+        #endregion
     }
 }
