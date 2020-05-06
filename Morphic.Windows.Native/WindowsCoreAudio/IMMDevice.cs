@@ -32,13 +32,16 @@ namespace Morphic.Windows.Native.WindowsCoreAudio
     internal interface IMMDevice
     {
         // Activate
-        public Int32 Activate(Guid iid, CLSCTX dwClsCtx, IntPtr /* (IntPtr.Zero) */ activationParams, [MarshalAs(UnmanagedType.IUnknown)] out Object? @interface);
+        public Int32 Activate(ref Guid iid, CLSCTX dwClsCtx, IntPtr /* (IntPtr.Zero) */ pActivationParams, out IntPtr ppInterface);
 
         // OpenPropertyStore
+        //public Int32 OpenPropertyStore(UInt32 stgmAccess, ref IntPtr ppProperties);
 
         // GetId
+        //public Int32 GetId(ref String ppstrId);
 
         // GetState
+        //public Int32 GetState(ref UInt32 pdwState);
 
     }
 }

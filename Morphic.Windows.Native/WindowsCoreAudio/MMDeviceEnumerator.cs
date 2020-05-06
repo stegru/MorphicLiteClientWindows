@@ -65,8 +65,8 @@ namespace Morphic.Windows.Native.WindowsCoreAudio
 
         public MMDevice GetDefaultAudioEndpoint(EDataFlow dataFlow, ERole role)
         {
-            IMMDevice? immDevice;
-            var result = _mmDeviceEnumerator.GetDefaultAudioEndpoint(dataFlow, role, out immDevice);
+            IntPtr pointerToImmDevice;
+            var result = _mmDeviceEnumerator.GetDefaultAudioEndpoint(dataFlow, role, out pointerToImmDevice);
             if (result != WindowsApi.S_OK)
             {
                 if (result == WindowsApi.E_NOTFOUND)
@@ -80,10 +80,21 @@ namespace Morphic.Windows.Native.WindowsCoreAudio
                 }
             }
 
-            if (immDevice == null)
+            if (pointerToImmDevice == IntPtr.Zero)
             {
                 // NOTE: this code should never be executed since GetDefaultAudioEndpoint should have returned an HRESULT of E_POINTER if it failed
                 throw new COMException("IMMDeviceEnumerator.GetDefaultAudioEndpoint returned a null pointer", new NullReferenceException());
+            }
+
+            // get an object for the IUnknown COM class interface
+            var immDeviceAsIUnknownObject = Marshal.GetObjectForIUnknown(pointerToImmDevice);
+            // try to cast the IUknownObject to the required type (IMMDevice)
+            var immDevice = immDeviceAsIUnknownObject as IMMDevice;
+
+            if (immDevice == null)
+            {
+                // NOTE: this code should never be executed since Activate should have returned a pointer which is not an IAudioEndpointVolume-compatible instance
+                throw new COMException("IMMDeviceEnumerator.GetDefaultAudioEndpoint returned an object of an incompatible type", new NullReferenceException());
             }
 
             var mmDevice = MMDevice.CreateFromIMMDevice(immDevice!);

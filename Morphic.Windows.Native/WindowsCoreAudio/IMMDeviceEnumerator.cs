@@ -36,7 +36,7 @@ namespace Morphic.Windows.Native.WindowsCoreAudio
         public Int32 EnumAudioEndpoints(EDataFlow dataFlow, UInt32 stateMask, out IntPtr devices);
 
         // GetDefaultAudioEndpoint
-        public Int32 GetDefaultAudioEndpoint(EDataFlow dataFlow, ERole role, [MarshalAs(UnmanagedType.Interface)] out IMMDevice? endpoint);
+        public Int32 GetDefaultAudioEndpoint(EDataFlow dataFlow, ERole role, out IntPtr endpoint);
 
         // GetDevice
 

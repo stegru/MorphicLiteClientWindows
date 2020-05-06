@@ -49,7 +49,6 @@ namespace Morphic.Windows.Native
             try
             {
                 Guid IID_IAudioEndpointVolume = new Guid("5CDF2C82-841E-4546-9722-0CF74078229A");
-                // TODO: the following code has been tested on x86 and amd64 architectures; once Microsoft ships a .NET Core SDK on ARM64, test it on ARM64 also.
                 var audioEndpointVolumeAsObject = defaultAudioOutputEndpoint.Activate(IID_IAudioEndpointVolume, CLSCTX.CLSCTX_INPROC_SERVER);
                 audioEndpointVolume = (IAudioEndpointVolume)audioEndpointVolumeAsObject;
             }

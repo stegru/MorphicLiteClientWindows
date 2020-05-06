@@ -43,18 +43,29 @@ namespace Morphic.Windows.Native.WindowsCoreAudio
 
         public Object Activate(Guid iid, CLSCTX clsCtx)
         {
-            Object? @interface;
-            var result = _immDevice.Activate(iid, clsCtx, IntPtr.Zero, out @interface);
+            IntPtr pointerToInterface;
+            var result = _immDevice.Activate(iid, clsCtx, IntPtr.Zero, out pointerToInterface);
             if (result != WindowsApi.S_OK)
             {
                 // TODO: consider throwing more granular exceptions here
-                throw new COMException("IMMDeviceEnumerator.GetDefaultAudioEndpoint failed", Marshal.GetExceptionForHR(result));
+                throw new COMException("IMMDevice.Activate failed", Marshal.GetExceptionForHR(result));
             }
 
-            if (@interface == null)
+            if (pointerToInterface == IntPtr.Zero)
             {
                 // NOTE: this code should never be executed since Activate should have returned an HRESULT of E_POINTER if it failed
                 throw new COMException("IMMDevice.Activate returned a null pointer", new NullReferenceException());
+            }
+
+            // get an object for the IUnknown COM class interface
+            var interfaceAsIUnknownObject = Marshal.GetObjectForIUnknown(pointerToInterface);
+            // try to cast the IUknownObject to the required type (IAudioEndpointVolume)
+            var @interface = interfaceAsIUnknownObject as IAudioEndpointVolume;
+
+            if (@interface == null)
+            {
+                // NOTE: this code should never be executed since Activate should have returned a pointer which is not an IAudioEndpointVolume-compatible instance
+                throw new COMException("IMMDevice.Activate returned an object of an incompatible type", new NullReferenceException());
             }
 
             return @interface!;
