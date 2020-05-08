@@ -24,9 +24,9 @@
 using Microsoft.Win32;
 using System;
 
-namespace Morphic.Windows.Native
+namespace Morphic.Windows.Native.Utilities
 {
-    public static class RegistryHelpers
+    public static class RegistryUtility
     {
         #region Public functions to get/set registry key values
 

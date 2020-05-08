@@ -710,9 +710,17 @@ namespace Morphic.Windows.Native
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         internal static extern UInt32 GetPrivateProfileString(String lpAppName, String lpKeyName, String lpDefault, IntPtr lpReturnedString, UInt32 size, String lpFileName);
         //
+        // https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getprocaddress
+        [DllImport("kernel32.dll", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
+        internal static extern IntPtr GetProcAddress(IntPtr hModule, String lpProcName);
+        //
         // https://docs.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getsysteminfo
         [DllImport("kernel32.dll")]
         internal static extern void GetSystemInfo(out SYSTEM_INFO lpSystemInfo);
+        //
+        // https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        internal static extern IntPtr LoadLibraryEx(String lpLibFileName, IntPtr hFile, UInt32 dwFlags);
         //
         // https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-writeprivateprofilesectionw
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
