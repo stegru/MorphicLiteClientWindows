@@ -1,4 +1,4 @@
-﻿// Copyright 2020 Raising the Floor - International
+// Copyright 2020 Raising the Floor - International
 //
 // Licensed under the New BSD license. You may not use this file except in
 // compliance with this License.
@@ -56,6 +56,7 @@ using Morphic.Settings.Files;
 
 namespace Morphic.Client
 {
+    using Bar.UI;
 
     public class AppMain
     {
@@ -146,6 +147,7 @@ namespace Morphic.Client
             services.AddTransient<QuickStripWindow>();
             services.AddTransient<LoginWindow>();
             services.AddTransient<AboutWindow>();
+            services.AddTransient<BarWindow>();
             services.AddMorphicSettingsHandlers(ConfigureSettingsHandlers);
         }
 
@@ -300,6 +302,10 @@ namespace Morphic.Client
             if (Session.GetBool(QuickStrip.QuickStripWindow.PreferenceKeys.Visible) ?? true)
             {
                 ShowQuickStrip(skippingSave: true);
+            }
+            if (Session.GetBool(BarWindow.PreferenceKeys.Visible) ?? true)
+            {
+                ShowBar(skippingSave: true);
             }
         }
 
@@ -526,6 +532,70 @@ namespace Morphic.Client
         private void QuickStripClosed(object? sender, EventArgs e)
         {
             QuickStripWindow = null;
+        }
+
+        #endregion
+
+        #region Community Bar
+
+        /// <summary>
+        ///  The Quick Strip Window, if visible
+        /// </summary>
+        public BarWindow? BarWindow { get; private set; } = null;
+
+        /// <summary>
+        /// Toggle the Quick Strip window based on its current visibility
+        /// </summary>
+        public void ToggleBar()
+        {
+            if (BarWindow != null)
+            {
+                HideBar();
+            }
+            else
+            {
+                ShowBar();
+            }
+        }
+
+        /// <summary>
+        /// Ensure the Quick Strip window is shown
+        /// </summary>
+        public void ShowBar(bool skippingSave = false)
+        {
+            if (BarWindow == null)
+            {
+                BarWindow = ServiceProvider.GetRequiredService<BarWindow>();
+                BarWindow.Closed += BarClosed;
+                BarWindow.Show();
+            }
+            BarWindow.Activate();
+            if (!skippingSave)
+            {
+                Session.SetPreference(BarWindow.PreferenceKeys.Visible, true);
+            }
+        }
+
+        /// <summary>
+        /// Ensure the Quick Strip window is hidden
+        /// </summary>
+        public void HideBar()
+        {
+            if (BarWindow != null)
+            {
+                BarWindow.Close();
+            }
+            Session.SetPreference(BarWindow.PreferenceKeys.Visible, false);
+        }
+
+        /// <summary>
+        /// Called when the Quick Strip window closes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BarClosed(object? sender, EventArgs e)
+        {
+            BarWindow = null;
         }
 
         #endregion

@@ -1,0 +1,130 @@
+{
+  id: "the id",
+  name: "not the name",
+  itemTheme: {
+    color: "white",
+    background: "#002957",
+    focus: {
+      borderColor: '#fff',
+      borderSize: 5,
+    },
+    hover: {
+      borderColor: '#ff0',
+      background: "#ccc",
+    }
+  },
+  items: [
+    {
+      id: "dropbox-homedir-button",
+      category: "cloud-drive-home-location",
+      kind: "button",
+      label: "Dropbox Home Folder",
+      popupText: "Opens your Dropbox",
+      description: "",
+      value: {
+        icon: "",
+        action: {
+          type: "web",
+          data: "https://www.dropbox.com/h"
+        }
+      }
+    },
+    {
+      id: "googledrive-homedir-button",
+      category: "cloud-drive-home-location",
+      kind: "button",
+      label: "Google Drive Home",
+      popupText: "Opens your Google Drive",
+      description: "",
+      theme: {
+        color: "black",
+        background: "#f00",
+        hover: {
+          background: "#0ff"
+        }
+      },
+      value: {
+        icon: "",
+        action: {
+          type: "web",
+          data: "https://drive.google.com/drive/my-drive"
+        }
+      }
+    },
+    {
+      id: "icloudfiles-homedir-button",
+      category: "icloudfiles-home-location",
+      kind: "button",
+      label: "iCloud Files Home Folder",
+      popupText: "Opens your iCloud Files",
+      description: "",
+      value: {
+        icon: "",
+        action: {
+          type: "web",
+          data: "https://www.icloud.com/iclouddrive/"
+        }
+      }
+    },
+    {
+      id: "box-homedir-button",
+      category: "box-home-location",
+      kind: "button",
+      label: "Box Home Folder",
+      popupText: "Opens your Box Home Folder",
+      description: "",
+      value: {
+        icon: "",
+        action: {
+          type: "web",
+          data: "https://www.box.com"
+          // TODO This URL needs to be more specific
+        }
+      }
+    },
+    {
+      id: "onedrive-homedir-button",
+      category: "onedrive-home-location",
+      kind: "button",
+      label: "One Drive Folder",
+      popupText: "Opens your Microsoft One Drive Home Folder",
+      description: "",
+      value: {
+        icon: "",
+        action: {
+          type: "web",
+          data: "https://onedrive.live.com/?id=root"
+        }
+      }
+    }
+  ],
+
+  x_items: [
+    {
+      label: "First item",
+      popupText: "first popup",
+      description: "describing the first item",
+      kind: "button",
+      value: {
+        icon: "../../Icon.png",
+        action: {
+          type: "web",
+          data: "hello"
+        }
+      },
+    },
+    {
+      label: "Second item",
+      popupText: "second popup",
+      description: "describing the second item",
+      kind: "button",
+      value: {
+        icon: "../../Icon.png",
+        action: {
+          type: "web",
+          data: "hello"
+        }
+      },
+    }
+  ]
+}

@@ -89,6 +89,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>UserSettings.settings</DependentUpon>
     </Compile>
+    <Compile Update="Bar\UI\BarButtonControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Bar\UI\BarWindow.xaml.cs">
+      <DependentUpon>BarWindow.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -116,6 +122,13 @@
 
   <ItemGroup>
     <Page Update="About\AboutWindow.xaml">
+      <Generator></Generator>
+    </Page>
+    <Page Update="Bar\UI\BarButtonControl.xaml">
+      <Generator></Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Bar\UI\BarWindow.xaml">
       <Generator></Generator>
     </Page>
   </ItemGroup>
