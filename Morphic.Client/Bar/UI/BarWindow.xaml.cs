@@ -2,23 +2,51 @@ namespace Morphic.Client.Bar.UI
 {
     using System;
     using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Data;
+    using System.Windows.Media;
     using Core;
+    using Newtonsoft.Json;
 
     /// <summary>
     /// The window for the main bar.
     /// </summary>
     public partial class BarWindow : Window
     {
-        public BarData Bar { get; }
+        private BarData barData;
+
+        public BarData Bar
+        {
+            get => this.barData;
+            private set
+            {
+                this.barData = value;
+                this.OnBarChanged();
+            }
+        }
 
         public BarWindow()
         {
-            this.Bar = BarData.FromFile(@"C:\src\gpii\lite\MorphicLiteClientWindows\Morphic.Client\Bar\test.json5");
-            this.DataContext = this.Bar;
+            this.Bar = new BarData();
+            this.DataContext = this;
             this.InitializeComponent();
+
+            this.AllowDrop = true;
+            this.Drop += (sender, args) =>
+            {
+                if (args.Data.GetDataPresent(DataFormats.FileDrop))
+                {
+                    string file = ((string[]) args.Data.GetData(DataFormats.FileDrop)).FirstOrDefault();
+                    this.SetBarFile(file);
+                }
+            };
         }
+
+        private event EventHandler BarChanged;
         
         public static class PreferenceKeys
         {
@@ -27,12 +55,66 @@ namespace Morphic.Client.Bar.UI
             public static Preferences.Key ShowsHelp = new Preferences.Key("org.raisingthefloor.morphic.communityBar", "showsHelp");
         }
 
+        private string barFile = string.Empty;
+        private async void SetBarFile(string file)
+        {
+            try
+            {
+                this.Bar = BarData.FromFile(file);
+                this.barFile = file;
+            }
+            catch (Exception e)
+            {
+                
+                Console.Error.WriteLine(e.Message);
+                Console.Error.WriteLine(e.ToString());
+
+                BarControl? control = this.FindName("BarControl") as BarControl;
+                if (control != null)
+                {
+                    control.RemoveItems();
+                    control.AddItem(new BarButton()
+                    {
+                        Theme = new BarItemTheme()
+                        {
+                            TextColor = Colors.DarkRed,
+                            Background = Colors.White,
+                            
+                        },
+                        Text = e.Message,
+                        ToolTip = e.Message,
+                        ToolTipInfo = e.ToString()
+                    });
+                }
+            }
+            
+            // Monitor the file for changes (not using FileSystemWatcher because it doesn't work on network mounts)
+            FileInfo lastInfo = new FileInfo(file);
+            while (this.barFile == file)
+            {
+                await Task.Delay(500);
+                FileInfo info = new FileInfo(file);
+                bool changed = info.Length != lastInfo.Length ||
+                               info.CreationTime != lastInfo.CreationTime ||
+                               info.LastWriteTime != lastInfo.LastWriteTime;
+                if (changed)
+                {
+                    this.SetBarFile(file);
+                    break;
+                }
+            }
+        }
+
         private void BarControl_OnInitialized(object? sender, EventArgs e)
         {
             if (sender is BarControl bar)
             {
-                bar.LoadBar(this.Bar);
-                bar.Columns = 1;
+                this.BarChanged += (o, args) =>
+                {
+                    bar.LoadBar(this.Bar);
+                };
+                
+                this.SetBarFile(Path.Join(Path.GetDirectoryName(Assembly.GetExecutingAssembly()?.Location), "test-bar.json5"));
             }
         }
 
@@ -48,6 +130,11 @@ namespace Morphic.Client.Bar.UI
                     this.SizeToContent = SizeToContent.WidthAndHeight;
                 };
             }
+        }
+
+        protected virtual void OnBarChanged()
+        {
+            this.BarChanged?.Invoke(this, EventArgs.Empty);
         }
     }
     

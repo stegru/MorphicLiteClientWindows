@@ -53,9 +53,15 @@ namespace Morphic.Client.Bar.UI
         
         public void LoadBar(BarData bar)
         {
+            this.RemoveItems();
             this.Bar = bar;
             this.LoadItems(this.Bar.AllItems);
             this.Columns = 1;
+        }
+
+        public void RemoveItems()
+        {
+            this.Children.Clear();
         }
 
         /// <summary>

@@ -12,7 +12,7 @@
         Background="{Binding Bar.BarTheme.Background, FallbackValue=White}"
         >
 
-    <ui:BarControl Initialized="BarControl_OnInitialized" Loaded="BarControl_OnLoaded" ItemWidth="100" ItemHeight="Auto"
+    <ui:BarControl x:Name="BarControl" Initialized="BarControl_OnInitialized" Loaded="BarControl_OnLoaded" ItemWidth="100" ItemHeight="Auto"
     >
         <ui:BarControl.Resources>
             <ui:Ternary x:Key="NullCollapsed" False="Collapsed" True="Visible" />
