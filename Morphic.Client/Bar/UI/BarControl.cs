@@ -23,7 +23,6 @@ namespace Morphic.Client.Bar.UI
         
         private void OnLayoutUpdated(object? sender, EventArgs e)
         {
-            
             double maxWidth = 0;
             foreach (UIElement child in this.Children)
             {
@@ -36,7 +35,10 @@ namespace Morphic.Client.Bar.UI
             }
 
             this.RecommendedWidth = maxWidth;
+            this.TallestItem = this.GetTallestItem();
         }
+
+        public double TallestItem { get; set; }
 
         public BarData Bar { get; private set; }
         
@@ -47,7 +49,7 @@ namespace Morphic.Client.Bar.UI
             set
             {
                 this.columns = value;
-                this.Width = base.ItemWidth * this.columns;
+                //this.Width = base.ItemWidth * this.columns;
             }
         }
         
@@ -87,6 +89,13 @@ namespace Morphic.Client.Bar.UI
             control.Style = new Style(control.GetType(), this.Resources["BarItemStyle"] as Style);
             this.Children.Add(control);
             return control;
+        }
+
+        public double GetTallestItem()
+        {
+            return this.Children.OfType<FrameworkElement>()
+                .Select(child => child.RenderSize.Height)
+                .Max();
         }
 
     }

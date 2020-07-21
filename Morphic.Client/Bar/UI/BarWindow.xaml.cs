@@ -7,8 +7,12 @@ namespace Morphic.Client.Bar.UI
     using System.Reflection;
     using System.Threading.Tasks;
     using System.Windows;
+    using System.Windows.Controls;
     using System.Windows.Data;
+    using System.Windows.Input;
     using System.Windows.Media;
+    using System.Windows.Shell;
+    using AppBar;
     using Core;
     using Newtonsoft.Json;
 
@@ -31,6 +35,7 @@ namespace Morphic.Client.Bar.UI
 
         public BarWindow()
         {
+            this.appBar = new AppBar(this);
             this.Bar = new BarData();
             this.DataContext = this;
             this.InitializeComponent();
@@ -44,6 +49,7 @@ namespace Morphic.Client.Bar.UI
                     this.SetBarFile(file);
                 }
             };
+            
         }
 
         private event EventHandler BarChanged;
@@ -56,6 +62,8 @@ namespace Morphic.Client.Bar.UI
         }
 
         private string barFile = string.Empty;
+        private AppBar appBar;
+
         private async void SetBarFile(string file)
         {
             try
@@ -120,21 +128,18 @@ namespace Morphic.Client.Bar.UI
 
         private void BarControl_OnLoaded(object sender, RoutedEventArgs e)
         {
-            if (sender is BarControl bar)
-            {
-                this.SizeChanged += (sender, args) =>
-                {
-                    // Resize the Window to match the content - this looks crap while using the mouse
-                    // to resize the window, capturing WM_SIZING would be better.
-                    bar.Columns = (int) (this.Width / bar.ItemWidth);
-                    this.SizeToContent = SizeToContent.WidthAndHeight;
-                };
-            }
         }
 
         protected virtual void OnBarChanged()
         {
             this.BarChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void BarControl_OnLayoutUpdated(object? sender, EventArgs e)
+        {
+            this.appBar.DockedSizes = new Size(this.BarControl.ItemWidth,
+            Math.Ceiling(this.BarControl.TallestItem)
+                );
         }
     }
     

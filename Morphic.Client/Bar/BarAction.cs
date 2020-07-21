@@ -2,6 +2,7 @@ namespace Morphic.Client.Bar
 {
     using System;
     using System.Threading.Tasks;
+    using System.Windows.Forms;
     using Newtonsoft.Json;
 
     /// <summary>
@@ -30,9 +31,10 @@ namespace Morphic.Client.Bar
 
         public Uri Uri { get; set; }
 
-        public override Task<bool> Invoke()
+        public override async Task<bool> Invoke()
         {
-            throw new System.NotImplementedException();
+            //MessageBox.Show(this.UrlString);
+            return true;
         }
     }
 

@@ -5,7 +5,8 @@
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
                          xmlns:ui="clr-namespace:Morphic.Client.Bar.UI"
                          mc:Ignorable="d" d:DesignWidth="100" d:DesignHeight="70"
-                         d:DataContext="{d:DesignInstance ui:BarButtonControl, IsDesignTimeCreatable=True}">
+                         d:DataContext="{d:DesignInstance ui:BarButtonControl, IsDesignTimeCreatable=True}"
+                         >
     <ui:BarItemControl.Resources>
         <!-- Colours based on the active theme -->
         <SolidColorBrush x:Key="Background" Color="{Binding ActiveTheme.Background, FallbackValue=Yellow}"/>
@@ -13,13 +14,25 @@
         <SolidColorBrush x:Key="BorderColor" Color="{Binding ActiveTheme.BorderColor, FallbackValue=Transparent}"/>
         <!-- Convert a boolean to a visibility -->
         <ui:Ternary x:Key="BoolVisibility" False="Collapse" True="Visible" />
+
+        <!-- Make the button style-less -->
+        <Style BasedOn="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </ui:BarItemControl.Resources>
     
     <Button x:Name="Button"
-            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+            Click="Button_OnClick"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
             HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
-            BorderThickness="0">
+            >
         <Grid>
             <Grid.RowDefinitions>
                 <!-- Contains the top half of the icon -->

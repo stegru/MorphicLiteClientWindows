@@ -7,13 +7,23 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance ui:BarWindow, IsDesignTimeCreatable=True}"
         
-        Title="{Binding Name}" Height="100"
-        WindowStyle="None" SizeToContent="WidthAndHeight" Topmost="True" ShowInTaskbar="False"
-        Background="{Binding Bar.BarTheme.Background, FallbackValue=White}"
+        Title="{Binding Name}" Height="100" 
+        WindowStyle="None" ResizeMode="NoResize" SizeToContent="Manual" Topmost="True" ShowInTaskbar="False"
+        d:Background="{Binding Bar.BarTheme.Background, FallbackValue=White}"
+        Background="Indigo"
         >
 
-    <ui:BarControl x:Name="BarControl" Initialized="BarControl_OnInitialized" Loaded="BarControl_OnLoaded" ItemWidth="100" ItemHeight="Auto"
-    >
+    <!-- Remove the white bar at the top -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="3"></WindowChrome>
+    </WindowChrome.WindowChrome>
+    
+    <ui:BarControl x:Name="BarControl" Initialized="BarControl_OnInitialized" Loaded="BarControl_OnLoaded" 
+                   LayoutUpdated="BarControl_OnLayoutUpdated"
+                   ItemWidth="100" ItemHeight="Auto"
+                   HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                   Background="Teal"
+                   >
         <ui:BarControl.Resources>
             <ui:Ternary x:Key="NullCollapsed" False="Collapsed" True="Visible" />
             
@@ -34,7 +44,9 @@
                                         </StackPanel>
                                     </ToolTip>
                                 </Grid.ToolTip>
-                                <ContentPresenter/>
+                                <Border Margin="2">
+                                    <ContentPresenter />
+                                </Border>
                             </Grid>
                             
                         </ControlTemplate>

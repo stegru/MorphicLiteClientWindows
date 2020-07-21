@@ -1,4 +1,4 @@
-// Copyright 2020 Raising the Floor - International
+﻿// Copyright 2020 Raising the Floor - International
 //
 // Licensed under the New BSD license. You may not use this file except in
 // compliance with this License.
@@ -63,6 +63,8 @@ namespace Morphic.Client
         [STAThread]
         public static void Main()
         {
+            // BarData.test();
+            // return;
             // Writing our own Main function so we can use a mutex to enforce only one running instance of Morphic at a time
             using (Mutex mutex = new Mutex(false, App.ApplicationId))
             {
