@@ -13,6 +13,7 @@
     public class BarItemControl : UserControl, INotifyPropertyChanged
     {
         private Theme activeTheme = null!;
+        private bool isMouseDown;
 
         /// <summary>
         /// Create an instance of this class, using the given bar item.
@@ -26,7 +27,15 @@
 
             // Some events to monitor the state.
             this.MouseEnter += (sender, args) => this.UpdateTheme();
-            this.MouseLeave += (sender, args) => this.UpdateTheme();
+            this.MouseLeave += (sender, args) =>
+            {
+                this.CheckMouseState(sender, args);
+                this.UpdateTheme();
+            };
+
+            this.PreviewMouseDown += this.CheckMouseState;
+            this.PreviewMouseUp += this.CheckMouseState;
+
             this.IsKeyboardFocusWithinChanged += (sender, args) =>
             {
                 this.FocusedByKeyboard = this.IsKeyboardFocusWithin &&
@@ -35,10 +44,16 @@
             };
         }
 
+
         public BarItemControl() : this(new BarItem())
         {
         }
 
+        private void CheckMouseState(object sender, MouseEventArgs mouseEventArgs)
+        {
+            this.IsMouseDown = mouseEventArgs.LeftButton == MouseButtonState.Pressed;
+        }
+        
         /// <summary>
         /// The bar item represented by this control.
         /// </summary>
@@ -64,6 +79,19 @@
             }
         }
 
+        public bool IsMouseDown
+        {
+            get => this.isMouseDown;
+            private set
+            {
+                if (this.isMouseDown != value)
+                {
+                    this.isMouseDown = value;
+                    this.UpdateTheme();
+                }
+            }
+        }
+
         /// <summary>true if the last focus was performed by the keyboard.</summary>
         public bool FocusedByKeyboard { get; set; }
 
@@ -82,25 +110,25 @@
         /// </summary>
         public void UpdateTheme()
         {
-            bool keyboardFocus = this.IsKeyboardFocusWithin && this.FocusedByKeyboard;
-            if (this.IsMouseOver && keyboardFocus)
+            Theme theme = new Theme();
+
+            // Apply the applicable states, most important first.
+            if (this.IsMouseDown)
             {
-                this.ActiveTheme = new Theme()
-                    .Apply(this.BarItem.Theme.Hover)
-                    .Apply(this.BarItem.Theme.Focus);
+                theme.Apply(this.BarItem.Theme.Active);
             }
-            else if (this.IsMouseOver)
+
+            if (this.IsMouseOver)
             {
-                this.ActiveTheme = this.BarItem.Theme.Hover;
+                theme.Apply(this.BarItem.Theme.Hover);
             }
-            else if (keyboardFocus)
+
+            if (this.IsKeyboardFocusWithin && this.FocusedByKeyboard)
             {
-                this.ActiveTheme = this.BarItem.Theme.Focus;
+                theme.Apply(this.BarItem.Theme.Focus);
             }
-            else
-            {
-                this.ActiveTheme = this.BarItem.Theme;
-            }
+
+            this.ActiveTheme = theme.Apply(this.BarItem.Theme);
         }
 
         #region INotifyPropertyChanged

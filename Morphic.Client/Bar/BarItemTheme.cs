@@ -17,16 +17,22 @@ namespace Morphic.Client.Bar
     [JsonObject(MemberSerialization.OptIn)]
     public class BarItemTheme : Theme
     {
+        /// <summary>Mouse is over the item.</summary>
         [JsonProperty("hover", ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public Theme Hover { get; set; } = Theme.Undefined();
         
+        /// <summary>Item has keyboard focus.</summary>
         [JsonProperty("focus", ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public Theme Focus { get; set; } = Theme.Undefined();
+
+        /// <summary>Item is being clicked.</summary>
+        [JsonProperty("active", ObjectCreationHandling = ObjectCreationHandling.Replace)]
+        public Theme Active { get; set; } = Theme.Undefined();
 
         public BarItemTheme()
         {
         }
-        
+
         public BarItemTheme(Theme theme)
         {
             this.Apply(theme);
@@ -35,8 +41,9 @@ namespace Morphic.Client.Bar
         public BarItemTheme Inherit(BarItemTheme theme)
         {
             this.Apply(theme);
-            this.Hover.Apply(theme.Hover).Apply(this);
-            this.Focus.Apply(theme.Focus).Apply(this);
+            this.Hover.Apply(theme.Hover);//.Apply(this);
+            this.Focus.Apply(theme.Focus);//.Apply(this);
+            this.Active.Apply(theme.Active);//.Apply(this);
             return this;
         }
     }
@@ -99,10 +106,10 @@ namespace Morphic.Client.Bar
         }
 
         /// <summary>
-        /// Sets the values of this instance using values of another.
+        /// Sets the unset values of this instance using values of another.
         /// </summary>
         /// <param name="source">The instance to read values from.</param>
-        /// <param name="all">false to set only values in this instance that are null, true to set all.</param>
+        /// <param name="all">true to set all values, false to set only values in this instance that are null.</param>
         public Theme Apply(Theme source, bool all = false)
         {
             foreach (PropertyInfo property in typeof(Theme).GetProperties())

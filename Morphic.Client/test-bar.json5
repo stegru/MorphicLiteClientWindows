@@ -11,15 +11,14 @@
     background: "#002957",
     focus: {
       borderColor: '#008145',
-      borderSize: 5,
+      borderSize: 5
     },
     hover: {
       borderColor: '#00E078',
-      background: "#005BC1",
+      background: "#005BC1"
     },
     active: {
-      borderColor: '#00E078',
-      background: "#005BC1",
+      background: "#2B8FFF"
     }
   },
   items: [
