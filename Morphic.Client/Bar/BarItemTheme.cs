@@ -53,9 +53,11 @@ namespace Morphic.Client.Bar
     [JsonObject(MemberSerialization.OptIn)]
     public class Theme : INotifyPropertyChanged
     {
+        private Color? background;
+
         [JsonProperty("color")]
         public Color? TextColor { get; set; }
-        
+
         [JsonProperty("background")]
         public Color? Background { get; set; }
 
@@ -63,15 +65,30 @@ namespace Morphic.Client.Bar
         public Color? BorderColor { get; set; }
 
         [JsonProperty("borderSize")]
-        public int? BorderSize { get; set; }
+        public double BorderSize { get; set; } = double.NaN;
 
         public bool IsUndefined { get; private set; }
 
-        public static Theme Default()
+        public static Theme DefaultBar()
         {
             return new Theme()
             {
-                Background = Colors.Red,
+                Background = Colors.White,
+                TextColor = Colors.Black,
+                BorderColor = Colors.Black,
+                BorderSize = 1
+            };
+        }
+        
+        /// <summary>
+        /// Default item theme.
+        /// </summary>
+        /// <returns></returns>
+        public static Theme DefaultItem()
+        {
+            return new Theme()
+            {
+                Background = ColorConverter.ConvertFromString("#002957") as Color?,
                 TextColor = Colors.White
             };
         }
@@ -91,17 +108,17 @@ namespace Morphic.Client.Bar
             foreach (PropertyInfo property in typeof(Theme).GetProperties())
             {
                 object? origValue = all ? null : property.GetValue(this);
-                if (origValue == null)
+                if (origValue == null || (origValue is double d && double.IsNaN(d)))
                 {
                     object? newValue = property.GetValue(source);
                     property.SetValue(this, newValue);
-                    this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property.Name));
                 }
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property.Name));
             }
 
             return this;
         }
         
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

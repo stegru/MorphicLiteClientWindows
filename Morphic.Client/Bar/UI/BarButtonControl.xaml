@@ -5,6 +5,7 @@
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
                          xmlns:ui="clr-namespace:Morphic.Client.Bar.UI"
                          mc:Ignorable="d" d:DesignWidth="100" d:DesignHeight="70"
+                         MinHeight="87"
                          d:DataContext="{d:DesignInstance ui:BarButtonControl, IsDesignTimeCreatable=True}"
                          >
     <ui:BarItemControl.Resources>
@@ -14,6 +15,7 @@
         <SolidColorBrush x:Key="BorderColor" Color="{Binding ActiveTheme.BorderColor, FallbackValue=Transparent}"/>
         <!-- Convert a boolean to a visibility -->
         <ui:Ternary x:Key="BoolVisibility" False="Collapse" True="Visible" />
+        <ui:Ternary x:Key="ColumnHeight" False="0*" True="1*" />
 
         <!-- Make the button style-less -->
         <Style BasedOn="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" TargetType="{x:Type Button}">
@@ -36,10 +38,9 @@
         <Grid>
             <Grid.RowDefinitions>
                 <!-- Contains the top half of the icon -->
-                <RowDefinition Height="1*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
                 <!-- Contains the bottom half of the icon, and top half of the background -->
-                <RowDefinition Height="1*"></RowDefinition>
-                <!-- Contains the text, and rest of the background -->
+                <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="2*"></RowDefinition>
             </Grid.RowDefinitions>
 
@@ -62,11 +63,12 @@
             
             <!-- Item text -->
             <TextBlock
+                Visibility="{Binding BarItem.ShowIcon, Converter={StaticResource BoolVisibility}}"
                 Grid.Row="2"
                 Text="{Binding BarItem.Text}"
                 TextWrapping="Wrap"
                 Foreground="{DynamicResource Foreground}"
-                HorizontalAlignment="Center" VerticalAlignment="Center"
+                HorizontalAlignment="Center" VerticalAlignment="Top"
                 Background="{StaticResource Background}"
                 Margin="2 5 2 5"
                 TextAlignment="Center"

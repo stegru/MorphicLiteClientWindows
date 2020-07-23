@@ -211,7 +211,6 @@ namespace Morphic.Client.AppBar
                     case WinApi.ABNotify.ABN_STATECHANGE:
                         break;
                     case WinApi.ABNotify.ABN_FULLSCREENAPP:
-                        Console.WriteLine("FULL");
                         break;
                     case WinApi.ABNotify.ABN_WINDOWARRANGE:
                         break;

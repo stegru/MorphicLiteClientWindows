@@ -52,9 +52,11 @@ namespace Morphic.Client.Bar
             };
             BarData bar = JsonSerializer.Create(settings)
                 .Deserialize<BarData>(new BarJsonTextReader(new StringReader(json), "win"));
-
+            
+            bar.BarTheme.Apply(Theme.DefaultBar());
+            
             // Make the theme of each item inherit the default theme.
-            bar.DefaultTheme.Apply(Theme.Default());
+            bar.DefaultTheme.Apply(Theme.DefaultItem());
             foreach (BarItem item in bar.AllItems)
             {
                 item.Theme.Inherit(bar.DefaultTheme);
@@ -68,11 +70,6 @@ namespace Morphic.Client.Bar
             return BarData.FromJson(File.ReadAllText(jsonFile));
         }
 
-        public static void test()
-        {
-            BarData bar = FromFile(@"C:\src\gpii\lite\MorphicLiteClientWindows\Morphic.Client\Bar\test.json5");
-        }
-        
         [DllImport("shlwapi.dll")]
         public static extern uint ColorHLSToRGB(int H, int L, int S);
         [DllImport("shlwapi.dll")]

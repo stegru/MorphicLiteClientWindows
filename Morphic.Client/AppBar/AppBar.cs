@@ -12,6 +12,7 @@ namespace Morphic.Client.AppBar
     using System.Collections.Generic;
     using System.Linq;
     using System.Windows;
+    using System.Windows.Controls;
     using System.Windows.Input;
     using System.Windows.Shell;
 
@@ -23,13 +24,25 @@ namespace Morphic.Client.AppBar
 
         private Point mouseDownPos;
         private Size floatingSize = Size.Empty;
-        private Thickness? initialResizeThickness;
-        private Edge appBarEdge = Edge.None;
+        public Edge AppBarEdge { get; private set; } = Edge.None;
 
-        public AppBar(Window window)
+        /// <summary>A callback that returns a good height from a given width.</summary>
+        public Func<double, double>? GetHeightFromWidth { get; set; }
+        /// <summary>A callback that returns a good width from a given height.</summary>
+        public Func<double, double>? GetWidthFromHeight { get; set; }
+
+        public bool SnapToEdges { get; set; } = true;
+
+        public event EventHandler<EdgeChangedEventArgs>? EdgeChanged;
+        
+        public AppBar(Window window) : this(window, new WindowMovement(window, true))
+        {
+        }
+        
+        public AppBar(Window window, WindowMovement windowMovement)
         {
             this.window = window;
-            this.windowMovement = new WindowMovement(this.window, true);
+            this.windowMovement = windowMovement;
             this.api = new AppBarApi(this.windowMovement);
 
             // Make the window draggable.
@@ -38,7 +51,79 @@ namespace Morphic.Client.AppBar
 
             this.windowMovement.SizeComplete += OnSizeComplete;
             this.windowMovement.MoveComplete += this.OnMoveComplete;
+            
             this.windowMovement.Moving += this.OnMoving;
+            this.windowMovement.Sizing += this.OnSizing;
+        }
+
+        private void OnSizing(object? sender, WindowMovement.MovementEventArgs e)
+        {
+            // Adjust the size to match the content.
+            bool horiz = (e.SizeEdge & WindowMovement.SizeEdge.Horizontal) == WindowMovement.SizeEdge.Horizontal;
+            Size newSize = this.GetGoodSize(e.Rect.Size, horiz ? Orientation.Horizontal : Orientation.Vertical, true);
+            if (newSize != e.Rect.Size)
+            {
+                e.Rect.Size = newSize;
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// Gets a size which better fits the content.
+        /// </summary>
+        /// <param name="size">The suggested size.</param>
+        /// <param name="priority">The axis which is more important (reluctant to change).</param>
+        /// <param name="inPixels">true if the size is in pixels.</param>
+        /// <returns>The new size.</returns>
+        public Size GetGoodSize(Size size, Orientation priority, bool inPixels = false)
+        {
+            bool changed = false;
+            Size newSize;
+            if (this.GetHeightFromWidth != null || this.GetWidthFromHeight != null)
+            {
+                newSize = inPixels ? this.FromPixels(size) : size;
+
+                void GetHeight()
+                {
+                    if (this.GetHeightFromWidth != null && this.AppBarEdge != Edge.Left)
+                    {
+                        double newHeight = this.GetHeightFromWidth(newSize.Width);
+                        if (!double.IsNaN(newHeight))
+                        {
+                            newSize.Height = newHeight;
+                            changed = true;
+                        }
+                    }
+                }
+
+                void GetWidth()
+                {
+                    if (this.GetWidthFromHeight != null)
+                    {
+                        double newWidth = this.GetWidthFromHeight(newSize.Height);
+                        if (!double.IsNaN(newWidth))
+                        {
+                            newSize.Width = newWidth;
+                            changed = true;
+                        }
+                    }
+                }
+
+                if (priority == Orientation.Horizontal)
+                {
+                    GetHeight();
+                    GetWidth();
+                }
+                else
+                {
+                    GetWidth();
+                    GetHeight();
+                }
+            }
+
+            return changed
+                ? (inPixels ? this.ToPixels(newSize) : newSize)
+                : size;
         }
 
         private void OnSizeComplete(object? sender, EventArgs e)
@@ -55,34 +140,59 @@ namespace Morphic.Client.AppBar
         private void OnMoveComplete(object? sender, EventArgs args)
         {
             // Reserve desktop space for the window.
-            this.api.Apply(this.appBarEdge);
+            this.ApplyAppBar(this.AppBarEdge);
+        }
 
-            // Remove the resizable area on the sides which are against the screen edges.
-            WindowChrome chrome = WindowChrome.GetWindowChrome(this.window);
+        public void ApplyAppBar(Edge edge)
+        {
+            this.api.Apply(edge);
+            this.OnEdgeChanged(edge, false);
+        }
 
-            this.initialResizeThickness ??= chrome.ResizeBorderThickness;
-
-            Thickness thickness = (Thickness) this.initialResizeThickness;
-
-            switch (this.appBarEdge)
+        /// <summary>
+        /// Adjusts a thickness so the edges that are touching the screen edge are zero.
+        /// </summary>
+        /// <param name="thickness">The initial thickness.</param>
+        /// <param name="invert">true to remove on the non-touching edge.</param>
+        /// <param name="none">Value of "zero" thickness.</param>
+        public Thickness AdjustThickness(Thickness thickness, bool invert = false, Thickness? none = null)
+        {
+            if (none == null)
             {
-                case Edge.None:
-                    break;
-                case Edge.Top:
-                    thickness.Left = thickness.Top = thickness.Right = 0;
-                    break;
-                case Edge.Bottom:
-                    thickness.Left = thickness.Right = thickness.Bottom = 0;
-                    break;
-                case Edge.Left:
-                    thickness.Left = thickness.Top = thickness.Bottom = 0;
-                    break;
-                case Edge.Right:
-                    thickness.Top = thickness.Right = thickness.Bottom = 0;
-                    break;
+                none = new Thickness(0);
             }
 
-            chrome.ResizeBorderThickness = thickness;
+            if (this.AppBarEdge == Edge.None)
+            {
+                return invert ? none.Value : thickness;
+            }
+
+            Edge notTouching = this.AppBarEdge switch
+            {
+                Edge.Left => Edge.Right,
+                Edge.Top => Edge.Bottom,
+                Edge.Right => Edge.Left,
+                Edge.Bottom => Edge.Top,
+                _ => Edge.None
+            };
+
+            Dictionary<Edge, Action> actions = new Dictionary<Edge, Action>()
+            {
+                {Edge.Left, () => thickness.Left = none.Value.Left },
+                {Edge.Right, () => thickness.Right = none.Value.Right },
+                {Edge.Top, () => thickness.Top = none.Value.Top },
+                {Edge.Bottom, () => thickness.Bottom = none.Value.Bottom },
+            };
+
+            foreach ((Edge edge, Action action) in actions)
+            {
+                if ((edge == notTouching) == invert)
+                {
+                    action.Invoke();
+                }
+            }
+
+            return thickness;
         }
 
         /// <summary>
@@ -96,14 +206,14 @@ namespace Morphic.Client.AppBar
 
             if (args.IsFirst)
             {
-                if (this.appBarEdge == Edge.None)
+                if (this.AppBarEdge == Edge.None)
                 {
                     this.floatingSize = args.Rect.Size;
                 }
                 else
                 {
                     // Un-dock the window so it can be moved.
-                    this.api.Apply(Edge.None);
+                    this.ApplyAppBar(Edge.None);
 
                     // Revert to the original size
                     args.Rect.Size = this.floatingSize;
@@ -132,17 +242,23 @@ namespace Morphic.Client.AppBar
             Rect mouseRect = new Rect(
                 Math.Clamp(mouse.X, workArea.Left, workArea.Right),
                 Math.Clamp(mouse.Y, workArea.Top, workArea.Bottom), 0, 0);
-            this.appBarEdge = this.NearEdges(workArea, mouseRect, 5).First();
+
+            Edge lastEdge = this.AppBarEdge;
+            this.AppBarEdge = this.NearEdges(workArea, mouseRect, 5).First();
+            if (lastEdge != this.AppBarEdge)
+            {
+                this.OnEdgeChanged(this.AppBarEdge, true);
+            }
 
             // Reposition the window to fit the edge.
-            switch (this.appBarEdge)
+            switch (this.AppBarEdge)
             {
                 case Edge.Left:
                 case Edge.Right:
-                    args.Rect.Width = this.ToPixels(this.DockedSizes).X;
                     args.Rect.Height = workArea.Height;
+                    args.Rect.Width = this.GetGoodSize(args.Rect.Size, Orientation.Vertical, true).Width;
                     args.Rect.Y = workArea.Top;
-                    if (this.appBarEdge == Edge.Left)
+                    if (this.AppBarEdge == Edge.Left)
                     {
                         args.Rect.X = workArea.X;
                     }
@@ -156,9 +272,9 @@ namespace Morphic.Client.AppBar
                 case Edge.Top:
                 case Edge.Bottom:
                     args.Rect.Width = workArea.Width;
-                    args.Rect.Height = this.ToPixels(this.DockedSizes).Y;
+                    args.Rect.Height = this.GetGoodSize(args.Rect.Size, Orientation.Horizontal, true).Height;
                     args.Rect.X = workArea.X;
-                    if (this.appBarEdge == Edge.Top)
+                    if (this.AppBarEdge == Edge.Top)
                     {
                         args.Rect.Y = workArea.Y;
                     }
@@ -186,14 +302,27 @@ namespace Morphic.Client.AppBar
         /// </summary>
         public Size DockedSizes { get; set; } = new Size(100, 100);
 
-        private Point ToPixels(Size size)
-        {
-            return this.ToPixels((Point) size);
-        }
+        private Size ToPixels(Size size) => (Size)this.ToPixels((Point) size);
+        private Size FromPixels(Size size) => (Size)this.FromPixels((Point) size);
 
         private Point ToPixels(Point input)
         {
             return PresentationSource.FromVisual(this.window).CompositionTarget.TransformToDevice.Transform(input);
+        }
+        
+        private Point FromPixels(Point input)
+        {
+            return PresentationSource.FromVisual(this.window).CompositionTarget.TransformFromDevice.Transform(input);
+        }
+
+        private Rect FromPixels(Rect input)
+        {
+            return new Rect(this.FromPixels(input.TopLeft), this.FromPixels(input.BottomRight));
+        }
+        
+        private Rect ToPixels(Rect input)
+        {
+            return new Rect(this.ToPixels(input.TopLeft), this.ToPixels(input.BottomRight));
         }
 
         public Size DockedSizesPixels { get; set; }
@@ -230,8 +359,6 @@ namespace Morphic.Client.AppBar
                 }
             }
         }
-
-        public bool SnapToEdges { get; set; } = true;
 
         /// <summary>
         /// Determines the edges of a rectangle that are close to the edge of an outer rectangle.
@@ -304,5 +431,35 @@ namespace Morphic.Client.AppBar
                 this.mouseDownPos = args.GetPosition(this.window);
             }
         }
+
+        protected virtual void OnEdgeChanged(Edge edge, bool preview)
+        {
+            this.OnEdgeChanged(new EdgeChangedEventArgs(edge, preview));
+        }
+        
+        protected virtual void OnEdgeChanged(EdgeChangedEventArgs args)
+        {
+            this.EdgeChanged?.Invoke(this, args);
+        }
+    }
+
+    public class EdgeChangedEventArgs : EventArgs
+    {
+        public EdgeChangedEventArgs(Edge edge, bool preview)
+        {
+            this.Edge = edge;
+            this.Preview = preview;
+        }
+
+        /// <summary>
+        /// The edge of the screen.
+        /// </summary>
+        public Edge Edge { get; }
+        /// <summary>
+        /// true if the current change is only a preview, the desktop reservation has not yet been applied.
+        /// </summary>
+        public bool Preview { get; }
+        
+        
     }
 }

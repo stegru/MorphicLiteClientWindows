@@ -26,7 +26,6 @@
 
         private void Button_OnClick(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("click");
             this.BarItem.Action.Invoke();
         }
     }

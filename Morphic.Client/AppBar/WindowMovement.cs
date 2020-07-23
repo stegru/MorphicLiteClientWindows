@@ -45,6 +45,9 @@ namespace Morphic.Client.AppBar
 
         /// <summary>Prevent the window from being resized.</summary>
         public bool NoSize { get; set; }
+
+        /// <summary>true to keep the window in place during resizing.</summary>
+        public bool AnchorSizingRect { get; set; } = true;
         
         /// <summary>
         /// Make the window resizable, regardless of the window's ResizeMode property. Setting the window's
@@ -183,7 +186,7 @@ namespace Morphic.Client.AppBar
 
                     this.IsMoving = msg == WinApi.WM_MOVING;
                     this.IsResizing = msg == WinApi.WM_SIZING;
-                    this.CurrentResizeEdge = this.IsResizing ? (SizeEdge) (int) wParam : SizeEdge.None;
+                    this.CurrentResizeEdge = this.IsResizing ? this.GetSizeEdge(wParam) : SizeEdge.None;
                     eventArgs.SizeEdge = this.CurrentResizeEdge;
 
                     // Call the event handler.
@@ -205,8 +208,28 @@ namespace Morphic.Client.AppBar
                         }
                     }
 
-                    this.firstEvent = false;
+                    if (this.IsResizing && this.AnchorSizingRect && eventArgs.Handled)
+                    {
+                        // When resizing, anchor the rect to the sides that are not being resized.
+                        if ((eventArgs.SizeEdge & SizeEdge.Left) == SizeEdge.Left)
+                        {
+                            eventArgs.Rect.X = this.initialRect.Right - eventArgs.Rect.Width;
+                        }
+                        else if ((eventArgs.SizeEdge & SizeEdge.Right) == SizeEdge.Right)
+                        {
+                            eventArgs.Rect.X = this.initialRect.X;
+                        }
+                        else if ((eventArgs.SizeEdge & SizeEdge.Top) == SizeEdge.Top)
+                        {
+                            eventArgs.Rect.Y = this.initialRect.Bottom - eventArgs.Rect.Height;
+                        }
+                        else if ((eventArgs.SizeEdge & SizeEdge.Bottom) == SizeEdge.Bottom)
+                        {
+                            eventArgs.Rect.Y = this.initialRect.Y;
+                        }
+                    }
 
+                    this.firstEvent = false;
                     if (eventArgs.Handled)
                     {
                         new WinApi.RECT(eventArgs.Rect).CopyToPointer(lParam);
@@ -219,6 +242,13 @@ namespace Morphic.Client.AppBar
 
             return result;
         }
+
+        private SizeEdge GetSizeEdge(IntPtr wParam)
+        {
+            int index = (int)wParam;
+            return (index >= 0 && index < this.edgeLookup.Length) ? this.edgeLookup[index] : SizeEdge.None;
+        }
+
 
         /// <summary>Called when the window is being moved.</summary>
         /// <param name="e"></param>
@@ -237,18 +267,33 @@ namespace Morphic.Client.AppBar
         /// <summary>
         /// Resize edges of a window.
         /// </summary>
+        [Flags]
         public enum SizeEdge
         {
             None = 0,
-            Left = 1,
-            Right = 2,
-            Top = 3,
-            TopLeft = 4,
-            TopRight = 5,
-            Bottom = 6,
-            BottomLeft = 7,
-            BottomRight = 8
+            Horizontal = 1,
+            Left = 1 << 1 | Horizontal,
+            Right = 1 << 2 | Horizontal,
+            Top = 1 << 3,
+            Bottom = 1 << 4,
+            TopLeft = Top | Left,
+            TopRight = Top | Right,
+            BottomLeft = Bottom | Left,
+            BottomRight = Bottom | Right
         }
+
+        private SizeEdge[] edgeLookup = new[]
+        {
+            SizeEdge.None,
+            SizeEdge.Left,
+            SizeEdge.Right,
+            SizeEdge.Top,
+            SizeEdge.TopLeft,
+            SizeEdge.TopRight,
+            SizeEdge.Bottom,
+            SizeEdge.BottomLeft,
+            SizeEdge.BottomRight
+        };
 
         public class MovementEventArgs : EventArgs
         {

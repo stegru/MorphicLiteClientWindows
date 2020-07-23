@@ -1,16 +1,25 @@
 {
   id: "the id",
   name: "not the name",
+  barTheme: {
+    background: "#fff",
+    borderColor: "#000",
+    borderSize: 1
+  },
   itemTheme: {
     color: "white",
     background: "#002957",
     focus: {
-      borderColor: '#fff',
+      borderColor: '#008145',
       borderSize: 5,
     },
     hover: {
-      borderColor: '#ff0',
-      background: "#ccc",
+      borderColor: '#00E078',
+      background: "#005BC1",
+    },
+    active: {
+      borderColor: '#00E078',
+      background: "#005BC1",
     }
   },
   items: [
