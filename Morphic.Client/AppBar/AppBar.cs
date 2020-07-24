@@ -25,6 +25,7 @@ namespace Morphic.Client.AppBar
         private Point mouseDownPos;
         private Size floatingSize = Size.Empty;
         public Edge AppBarEdge { get; private set; } = Edge.None;
+        public bool EnableDocking { get; set; } = true;
 
         /// <summary>A callback that returns a good height from a given width.</summary>
         public Func<double, double>? GetHeightFromWidth { get; set; }
@@ -237,17 +238,19 @@ namespace Morphic.Client.AppBar
             // Like magnifier, if the mouse pointer is on the edge then make the window an app bar on that edge.
             System.Drawing.Point mouse = System.Windows.Forms.Control.MousePosition;
             Rect workArea = this.windowMovement.GetWorkArea(new Point(mouse.X, mouse.Y));
-
-            // See what edge the mouse is near (or beyond)
-            Rect mouseRect = new Rect(
-                Math.Clamp(mouse.X, workArea.Left, workArea.Right),
-                Math.Clamp(mouse.Y, workArea.Top, workArea.Bottom), 0, 0);
-
-            Edge lastEdge = this.AppBarEdge;
-            this.AppBarEdge = this.NearEdges(workArea, mouseRect, 5).First();
-            if (lastEdge != this.AppBarEdge)
+            if (this.EnableDocking)
             {
-                this.OnEdgeChanged(this.AppBarEdge, true);
+                // See what edge the mouse is near (or beyond)
+                Rect mouseRect = new Rect(
+                    Math.Clamp(mouse.X, workArea.Left, workArea.Right),
+                    Math.Clamp(mouse.Y, workArea.Top, workArea.Bottom), 0, 0);
+
+                Edge lastEdge = this.AppBarEdge;
+                this.AppBarEdge = this.NearEdges(workArea, mouseRect, 5).First();
+                if (lastEdge != this.AppBarEdge)
+                {
+                    this.OnEdgeChanged(this.AppBarEdge, true);
+                }
             }
 
             // Reposition the window to fit the edge.

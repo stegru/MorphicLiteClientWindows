@@ -25,7 +25,7 @@
         <WindowChrome CaptionHeight="0" ResizeBorderThickness="3"></WindowChrome>
     </WindowChrome.WindowChrome>
 
-    <ui:BarControl x:Name="BarControl" Initialized="BarControl_OnInitialized" Loaded="BarControl_OnLoaded" 
+    <ui:BarControl x:Name="BarControl" 
                ItemWidth="100" ItemHeight="90" 
                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                Margin="{Binding Path=Padding, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"

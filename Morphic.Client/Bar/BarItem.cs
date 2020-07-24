@@ -16,24 +16,45 @@ namespace Morphic.Client.Bar
     [JsonConverter(typeof(TypedJsonConverter), "kind")]
     public class BarItem
     {
+        /// <summary>
+        /// The text displayed on the item.
+        /// </summary>
         [JsonProperty("label")]
-        public string Text { get; set; }
+        public string? Text { get; set; }
         
+        /// <summary>
+        /// Tooltip main text.
+        /// </summary>
         [JsonProperty("popupText")]
-        public string ToolTip { get; set; }
+        public string? ToolTip { get; set; }
 
+        /// <summary>
+        /// Tooltip smaller text.
+        /// </summary>
         [JsonProperty("description")]
-        public string ToolTipInfo { get; set; }
+        public string? ToolTipInfo { get; set; }
         
+        /// <summary>
+        /// true if the item is to be displayed on the pull-out bar.
+        /// </summary>
         [JsonProperty("isExtra")]
         public bool IsExtra { get; set; }
         
+        /// <summary>
+        /// Don't display this item.
+        /// </summary>
         [JsonProperty("hidden")]
         public bool Hidden { get; set; }
 
+        /// <summary>
+        /// Theme for the item.
+        /// </summary>
         [JsonProperty("theme")]
         public BarItemTheme Theme { get; set; } = new BarItemTheme();
 
+        /// <summary>
+        /// The type of control used. This is specified by using BarControl attribute in a subclass of this.
+        /// </summary>
         public Type ControlType => this.GetType().GetCustomAttribute<BarControlAttribute>()?.Type!;
     }
 
@@ -45,18 +66,18 @@ namespace Morphic.Client.Bar
     public class BarButton : BarItem
     {
         [JsonProperty("value.icon")]
-        public string IconValue { get; set; }
+        public string? IconValue { get; set; }
 
         [JsonProperty("value.action")]
-        public BarAction Action { get; set; }
-
+        public BarAction? Action { get; set; }
+        
         public bool ShowIcon => string.IsNullOrEmpty(this.IconPath);
         
         public string IconPath
         {
             get
             {
-                string result = this.IconValue;
+                string? result = this.IconValue;
                 
                 if (string.IsNullOrEmpty(result))
                 {
@@ -68,7 +89,7 @@ namespace Morphic.Client.Bar
                     }
                 }
 
-                return result;
+                return result ?? string.Empty;
             }
         }
     }

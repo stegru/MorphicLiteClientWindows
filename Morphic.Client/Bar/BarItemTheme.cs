@@ -17,15 +17,15 @@ namespace Morphic.Client.Bar
     [JsonObject(MemberSerialization.OptIn)]
     public class BarItemTheme : Theme
     {
-        /// <summary>Mouse is over the item.</summary>
+        /// <summary>The theme for when the mouse is over the item.</summary>
         [JsonProperty("hover", ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public Theme Hover { get; set; } = Theme.Undefined();
         
-        /// <summary>Item has keyboard focus.</summary>
+        /// <summary>The theme for when the item has keyboard focus.</summary>
         [JsonProperty("focus", ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public Theme Focus { get; set; } = Theme.Undefined();
 
-        /// <summary>Item is being clicked.</summary>
+        /// <summary>The theme for when the item is being clicked (mouse is down).</summary>
         [JsonProperty("active", ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public Theme Active { get; set; } = Theme.Undefined();
 
@@ -57,11 +57,15 @@ namespace Morphic.Client.Bar
         
     }
 
+    /// <summary>
+    /// A theme.
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class Theme : INotifyPropertyChanged
     {
         private Color? background;
 
+        /// <summary>Text colour.</summary>
         [JsonProperty("color")]
         public Color? TextColor { get; set; }
 

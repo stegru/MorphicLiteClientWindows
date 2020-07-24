@@ -16,15 +16,31 @@ namespace Morphic.Client.Bar
     [JsonObject(MemberSerialization.OptIn)]
     public class BarData
     {
+        /// <summary>
+        /// Bar identifier (currently unused by the client)
+        /// </summary>
         [JsonProperty("id")]
         public string Id { get; set; }
 
+        /// <summary>
+        /// Name of the bar (currently unused by the client)
+        /// </summary>
         [JsonProperty("name")]
         public string Name { get; set; }
 
+        /// <summary>Initial bar position.</summary>
+        [JsonProperty("position", ObjectCreationHandling = ObjectCreationHandling.Replace)]
+        public BarPosition Position { get; set; } = new BarPosition();
+
+        /// <summary>
+        /// Base theme for bar items - items will take values from this if they haven't got their own.
+        /// </summary>
         [JsonProperty("itemTheme", ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public BarItemTheme DefaultTheme { get; set; } = new BarItemTheme(Theme.Undefined());
         
+        /// <summary>
+        /// Theme for the bar.
+        /// </summary>
         [JsonProperty("barTheme", ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public Theme BarTheme { get; set; } = Theme.Undefined();
         
@@ -32,7 +48,7 @@ namespace Morphic.Client.Bar
         /// Gets all items.
         /// </summary>
         [JsonProperty("items")]
-        public List<BarItem> AllItems { get; set; }
+        public List<BarItem> AllItems { get; set; } = new List<BarItem>();
         
         /// <summary>
         /// Gets the items for the main bar.
@@ -44,6 +60,11 @@ namespace Morphic.Client.Bar
         /// </summary>
         public IEnumerable<BarItem> ExtraItems => this.AllItems.Where(item => !item.Hidden && item.IsExtra);
 
+        /// <summary>
+        /// Generates the bar from a json string.
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
         public static BarData FromJson(string json)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings()
@@ -69,11 +90,5 @@ namespace Morphic.Client.Bar
         {
             return BarData.FromJson(File.ReadAllText(jsonFile));
         }
-
-        [DllImport("shlwapi.dll")]
-        public static extern uint ColorHLSToRGB(int H, int L, int S);
-        [DllImport("shlwapi.dll")]
-        static extern void ColorRGBToHLS(uint RGB, ref int H, ref int L, ref int S);
-
     }
 }

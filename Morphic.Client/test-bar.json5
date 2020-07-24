@@ -1,6 +1,11 @@
 {
   id: "the id",
   name: "not the name",
+  position: {
+    docked: null,
+    x: "Left",
+    y: "Middle"
+  },
   barTheme: {
     background: "#fff",
     borderColor: "#000",
@@ -48,7 +53,9 @@
         color: "black",
         background: "#f00",
         hover: {
-          background: "#0ff"
+          background: "#0ff",
+          borderSize: 5,
+          borderColor: "red"
         }
       },
       value: {

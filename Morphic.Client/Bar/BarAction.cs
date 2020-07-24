@@ -33,7 +33,7 @@ namespace Morphic.Client.Bar
 
         public override async Task<bool> Invoke()
         {
-            //MessageBox.Show(this.UrlString);
+            MessageBox.Show($"Opens a browser with: ${this.UrlString}");
             return true;
         }
     }
@@ -49,7 +49,7 @@ namespace Morphic.Client.Bar
 
         public override Task<bool> Invoke()
         {
-            throw new System.NotImplementedException();
+            MessageBox.Show($"Opens the application ${this.AppName}");
         }
     }
 }

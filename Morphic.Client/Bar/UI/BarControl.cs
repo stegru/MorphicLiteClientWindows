@@ -41,8 +41,10 @@ namespace Morphic.Client.Bar.UI
         /// <returns></returns>
         public double GetWidthFromHeight(double height)
         {
-            double width = Math.Ceiling(this.Children.Count / Math.Floor(height / this.tallestItem)) * this.ItemWidth;
-            return Math.Clamp(width, this.ItemWidth, this.ItemWidth * this.Children.Count);
+            int itemCount = Math.Max(1, this.Children.Count);
+
+            double width = Math.Ceiling(itemCount / Math.Floor(height / this.tallestItem)) * this.ItemWidth;
+            return Math.Clamp(width, this.ItemWidth, this.ItemWidth * itemCount);
         }
 
         /// <summary>Gets a heigh that fits all items with the given width.</summary>
@@ -50,8 +52,9 @@ namespace Morphic.Client.Bar.UI
         /// <returns></returns>
         public double GetHeightFromWidth(double width)
         {
-            double height = Math.Ceiling(this.Children.Count / Math.Floor(width / this.ItemWidth)) * this.tallestItem;
-            return Math.Clamp(height, this.tallestItem, this.tallestItem * this.Children.Count);
+            int itemCount = Math.Max(1, this.Children.Count);
+            double height = Math.Ceiling(itemCount / Math.Floor(width / this.ItemWidth)) * this.tallestItem;
+            return Math.Clamp(height, this.tallestItem, this.tallestItem * itemCount);
         }
 
         public void LoadBar(BarData bar)
