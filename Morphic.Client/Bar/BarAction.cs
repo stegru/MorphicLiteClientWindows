@@ -33,7 +33,7 @@ namespace Morphic.Client.Bar
 
         public override async Task<bool> Invoke()
         {
-            MessageBox.Show($"Opens a browser with: ${this.UrlString}");
+            MessageBox.Show($"Opens a browser with: {this.UrlString}");
             return true;
         }
     }
@@ -47,9 +47,10 @@ namespace Morphic.Client.Bar
         [JsonProperty("data")]
         public string AppName { get; set; }
 
-        public override Task<bool> Invoke()
+        public override async Task<bool> Invoke()
         {
-            MessageBox.Show($"Opens the application ${this.AppName}");
+            MessageBox.Show($"Opens the application {this.AppName}");
+            return true;
         }
     }
 }

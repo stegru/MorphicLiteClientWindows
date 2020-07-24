@@ -46,9 +46,15 @@
       id: "googledrive-homedir-button",
       category: "cloud-drive-home-location",
       kind: "button",
-      label: "Google Drive Home",
-      popupText: "Opens your Google Drive",
-      description: "",
+      
+      // platform specific values
+      label: "unknown platform",
+      label$win: "Google Drive Home",
+      label$mac: "mac implementation is ready",
+      
+      popupText: "popupText",
+      description: "description",
+      
       theme: {
         color: "black",
         background: "#f00",
@@ -56,13 +62,20 @@
           background: "#0ff",
           borderSize: 5,
           borderColor: "red"
+        },
+        active: {
+          borderColor: "gold"
         }
       },
       value: {
         icon: "",
-        action: {
+        action$win: {
           type: "web",
           data: "https://drive.google.com/drive/my-drive"
+        },
+        action: {
+          type: "web",
+          data: "unknown platform"
         }
       }
     },
@@ -111,35 +124,6 @@
           data: "https://onedrive.live.com/?id=root"
         }
       }
-    }
-  ],
-
-  x_items: [
-    {
-      label: "First item",
-      popupText: "first popup",
-      description: "describing the first item",
-      kind: "button",
-      value: {
-        icon: "../../Icon.png",
-        action: {
-          type: "web",
-          data: "hello"
-        }
-      },
-    },
-    {
-      label: "Second item",
-      popupText: "second popup",
-      description: "describing the second item",
-      kind: "button",
-      value: {
-        icon: "../../Icon.png",
-        action: {
-          type: "web",
-          data: "hello"
-        }
-      },
     }
   ]
 }
