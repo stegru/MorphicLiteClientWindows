@@ -1,9 +1,14 @@
 namespace Morphic.Client.Bar
 {
     using System;
+    using System.Diagnostics;
+    using System.Net.WebSockets;
+    using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Forms;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// An action for a bar item.
@@ -33,7 +38,12 @@ namespace Morphic.Client.Bar
 
         public override async Task<bool> Invoke()
         {
-            MessageBox.Show($"Opens a browser with: {this.UrlString}");
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = this.Uri.ToString(),
+                UseShellExecute = true
+            });
+
             return true;
         }
     }
@@ -50,6 +60,29 @@ namespace Morphic.Client.Bar
         public override async Task<bool> Invoke()
         {
             MessageBox.Show($"Opens the application {this.AppName}");
+            return true;
+        }
+    }
+
+    [JsonTypeName("gpii")]
+    public class BarGpiiAction : BarAction
+    {
+        [JsonProperty("data")]
+        public JObject RequestObject { get; set; }
+        
+        public override async Task<bool> Invoke()
+        {
+            ClientWebSocket socket = new ClientWebSocket();
+            CancellationTokenSource cancel = new CancellationTokenSource();
+            await socket.ConnectAsync(new Uri("ws://localhost:8081/pspChannel"), cancel.Token);
+
+            string requestString = this.RequestObject.ToString();
+            byte[] bytes = Encoding.UTF8.GetBytes(requestString);
+            
+            ArraySegment<byte> sendBuffer = new ArraySegment<byte>(bytes);
+            await socket.SendAsync(sendBuffer, WebSocketMessageType.Text, endOfMessage: true,
+                cancellationToken: cancel.Token);
+
             return true;
         }
     }

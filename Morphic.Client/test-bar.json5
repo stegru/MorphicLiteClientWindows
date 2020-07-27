@@ -46,15 +46,12 @@
       id: "googledrive-homedir-button",
       category: "cloud-drive-home-location",
       kind: "button",
-      
       // platform specific values
       label: "unknown platform",
       label$win: "Google Drive Home",
       label$mac: "mac implementation is ready",
-      
       popupText: "popupText",
       description: "description",
-      
       theme: {
         color: "black",
         background: "#f00",
@@ -122,6 +119,48 @@
         action: {
           type: "web",
           data: "https://onedrive.live.com/?id=root"
+        }
+      }
+    },
+    {
+      kind: "button",
+      label: "DPI high (gpii)",
+      description: "",
+      value: {
+        icon: "",
+        action: {
+          type: "gpii",
+          data: {
+            "type": "modelChanged",
+            value: {
+              settingControls: {
+                "http://registry\\.gpii\\.net/common/DPIScale": {
+                  value: 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      kind: "button",
+      label: "DPI low (gpii)",
+      description: "",
+      value: {
+        icon: "",
+        action: {
+          type: "gpii",
+          data: {
+            "type": "modelChanged",
+            value: {
+              settingControls: {
+                "http://registry\\.gpii\\.net/common/DPIScale": {
+                  value: 0
+                }
+              }
+            }
+          }
         }
       }
     }
